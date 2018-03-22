@@ -46,7 +46,9 @@
           </div>
       <!-- </div> -->
           <div>
+            <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" ref="loadmore">
             <supplier :supplier='supplier' v-if="supplier"></supplier>
+            </mt-loadmore>
           </div>
   </div>
 </template>
@@ -56,10 +58,11 @@ import BMap from 'BMap'
 
 import Supplier from 'com/supplier/supplier'
 import Vue from 'vue'
-import { Swipe, SwipeItem } from 'mint-ui'
+import { Swipe, SwipeItem, Loadmore } from 'mint-ui'
 import { setSession, getSession } from '@/common/public'
 Vue.component(Swipe.name, Swipe)
 Vue.component(SwipeItem.name, SwipeItem)
+Vue.component(Loadmore.name, Loadmore);
 export default {
   data () {
     return {
@@ -125,6 +128,10 @@ export default {
     }
   },
   methods: {
+    loadBottom() {
+      this.allLoaded = true;// 若数据已全部获取完毕
+      this.$refs.loadmore.onBottomLoaded();
+    },
     getAddress: function () {
       const tipNode = document.getElementById('tip')
       setTimeout(function () {

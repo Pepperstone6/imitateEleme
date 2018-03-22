@@ -26,6 +26,12 @@ Vue.filter('aPath', function (value) {
   let str = value.match(/url.*&/)[0]
   return str.substring(4,str.length-1)
 })
+Vue.filter('distance', function (value) {
+  if (value >= 1000) {
+    return (value/1000).toFixed(2)+'km'
+  }
+  return value + 'm'
+})
 new Vue({
   el: '#app',
   router,

@@ -1,8 +1,16 @@
 <template>
-  <div></div>
+  <div class="">
+
+  </div>
 </template>
 <script>
-export default {}
+export default {
+  props: {
+    rating: Number,
+    size: Number
+  }
+}
 </script>
 <style lang="stylus" scoped>
+   
 </style>
