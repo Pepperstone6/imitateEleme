@@ -7,6 +7,9 @@
             定位中...
           </div>
         </div>
+        <div class="fixedSearch">
+          <search></search>
+        </div> 
       </header>
       <div class='search'>
          <div class='seach-content'>
@@ -45,24 +48,23 @@
             </mt-swipe>
           </div>
       <!-- </div> -->
-          <div>
-            <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" ref="loadmore">
-            <supplier :supplier='supplier' v-if="supplier"></supplier>
-            </mt-loadmore>
+          <div >
+              <supplier :supplier='supplier' v-if="supplier"></supplier>
           </div>
+          <tail></tail> 
   </div>
 </template>
 <script>
 import axios from 'axios'
 import BMap from 'BMap'
-
+import Search from 'com/search/search'
 import Supplier from 'com/supplier/supplier'
+import Tail from 'com/tail/tail'
 import Vue from 'vue'
-import { Swipe, SwipeItem, Loadmore } from 'mint-ui'
+import { Swipe, SwipeItem } from 'mint-ui'
 import { setSession, getSession } from '@/common/public'
 Vue.component(Swipe.name, Swipe)
 Vue.component(SwipeItem.name, SwipeItem)
-Vue.component(Loadmore.name, Loadmore);
 export default {
   data () {
     return {
@@ -128,10 +130,6 @@ export default {
     }
   },
   methods: {
-    loadBottom() {
-      this.allLoaded = true;// 若数据已全部获取完毕
-      this.$refs.loadmore.onBottomLoaded();
-    },
     getAddress: function () {
       const tipNode = document.getElementById('tip')
       setTimeout(function () {
@@ -209,17 +207,25 @@ export default {
     }
   },
   components: {
-    Supplier
+    Supplier,
+    Tail,
+    Search
   }
   // mounted () {
   // }
 }
 </script>
 <style lang='stylus' scoped>
+.fixedSearch
+  position fixed
+  width 100%
+  top 0
+  left 0
+  z-index 99
+  display none
 .head {
   background-image: linear-gradient(90deg, #0af, #0085ff)
   padding: 2.666667vw 3.733333vw 0
-
   .location {
     width: 60%
     font-weight: 700

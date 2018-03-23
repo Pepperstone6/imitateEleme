@@ -1,8 +1,10 @@
 <template>
   <div id="supplier">
     <div class="recommend">推荐商家</div>
-    <ul v-if="restaurant">
-      <li class="restaurantWr"  v-for="item in restaurant" :key="item.restaurant.id">
+    <ul v-if="restaurant" v-infinite-scroll='loadMore'
+            infinite-scroll-disabled="loading"
+            infinite-scroll-distance="10">
+      <li class="restaurantWr" ref="restaurant" v-for="(item, key) in restaurant" :key="key">
           <div class="restaurant">
             <div class="supplierImg">
              <img :src="item.restaurant.image_path | imgUrl" alt="">
@@ -64,7 +66,11 @@
 </template>
 <script>
 // import Star from 'com/stars/stars'
-
+import axios from 'axios'
+import Vue from 'vue'
+import { InfiniteScroll } from 'mint-ui';
+import { setSession, getSession } from '@/common/public'
+Vue.use(InfiniteScroll);
 export default {
   props: {
     supplier: {
@@ -74,7 +80,11 @@ export default {
   data () {
     return {
       restaurant: null,
-      index: true
+      index: true,
+      type:1,
+      latitude: null,
+      longitude: null,
+      flag: true
     }
   },
   methods: {
@@ -95,17 +105,49 @@ export default {
         }
       }
       this.index = !num
+    },
+    loadMore() {
+      // this.$loading = true;
+      if (!this.flag) {
+        return
+      }
+     
+      this.flag = false
+      axios.get(
+        `/apis/restapi/shopping/v3/restaurants?latitude=${this.latitude}&longitude=${this.longitude}
+        &offset=${this.type*8}&limit=8&extras[]=activities&extras[]=tags&extra_filters=home&rank_id=&terminal=h5`
+      ).then(data => {
+          this.flag = true
+          this.type++
+          console.log(data)
+          this.restaurant = [...this.restaurant, ...data.data.items]
+          // data.data.items.map(item => this.restaurant.push(item))
+          console.log(this.restaurant)
+      })
+      // setTimeout(() => {
+      //   this.loading = false;
+      // }, 2500);
     }
   },
+  // computed: {
+  //   loadMore: function () {
+  //     this.loading = true;
+  //     setTimeout(() => {
+  //       let last = this.list[this.list.length - 1];
+  //       for (let i = 1; i <= 10; i++) {
+  //         this.list.push(last + i);
+  //       }
+  //       this.loading = false;
+  //     }, 2500);
+  //   }
+  // },
   mounted () {
     console.log(this.supplier, 1)
-    this.restaurant = this.supplier.data.items
+    const _this = this
+    _this.restaurant = _this.supplier.data.items
+    _this.latitude = JSON.parse(getSession('latitude'))
+    _this.longitude = JSON.parse(getSession('longitude'))
     console.log(this.restaurant, this.supplier)
-  },
-  computed:  {
-    control: function (value) {
-      console.log(value)
-    }
   },
   components: {
     // Star
