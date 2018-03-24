@@ -1,57 +1,62 @@
 <template>
   <div id='msite'>
-      <header class='head'>
-        <div class='location'>
-          <div id='allmap' style='width:0;height:0;'></div>
-          <div ref='tip' id='tip'>
-            定位中...
+    <div class="scrollNode">
+      <div>
+        <header class='head'>
+          <div class='location'>
+            <div id='allmap' style='width:0;height:0;'></div>
+            <div ref='tip' id='tip'>
+              定位中...
+            </div>
+          </div>
+          <div class="fixedSearch">
+            <search></search>
+          </div> 
+        </header>
+        <div class='search'>
+          <div class='seach-content'>
+              搜索你喜欢的商品
           </div>
         </div>
-        <div class="fixedSearch">
-          <search></search>
-        </div> 
-      </header>
-      <div class='search'>
-         <div class='seach-content'>
-            搜索你喜欢的商品
-         </div>
-      </div>
-      <!-- <div v-if="slideInfo.length" ref='silder-wr'  class='mint-swipe-items-wrap'> -->
-          <!-- <slider>
-              <div class="slider-item" ref="sliderItem" v-for='silde in slideInfo' :key='silde.id'>
-                <a :href='silde.link'>
-                  <img :src="silde.image_hash | imgUrl" alt="">
-                </a>
-              </div>
-          </slider> -->
-          <div id="slider-wr">
-            <mt-swipe  :auto="3000">
-              <mt-swipe-item ref="slideItem"  v-for='silde in slideInfo' :key='silde.id'>
-                <a :href="silde.link | aPath">
-                  <img ref="imgAd" :src="silde.image_hash | imgUrl" alt="">
-                </a>
-              </mt-swipe-item>
-            </mt-swipe>
-          </div>
-          <div id="classify">
-            <mt-swipe  :auto="0">
-              <mt-swipe-item ref="classifyItem"  v-for='(classItem, key) in classify' :key='key'>
-                <div class="itemWr">
-                  <div class="classifyItem" v-for="item in classItem" :key="item.id">
-                    <router-link to="#">
-                      <div class="itemImg"><img :src="item.image_hash | imgUrl" alt=""></div>
-                      <div class="classname">{{item.name}}</div>
-                    </router-link>
-                  </div>
+        <!-- <div v-if="slideInfo.length" ref='silder-wr'  class='mint-swipe-items-wrap'> -->
+            <!-- <slider>
+                <div class="slider-item" ref="sliderItem" v-for='silde in slideInfo' :key='silde.id'>
+                  <a :href='silde.link'>
+                    <img :src="silde.image_hash | imgUrl" alt="">
+                  </a>
                 </div>
-              </mt-swipe-item>
-            </mt-swipe>
-          </div>
-      <!-- </div> -->
-          <div >
-              <supplier :supplier='supplier' v-if="supplier"></supplier>
-          </div>
-          <tail></tail> 
+            </slider> -->
+            <div id="slider-wr">
+              <mt-swipe  :auto="3000">
+                <mt-swipe-item ref="slideItem"  v-for='silde in slideInfo' :key='silde.id'>
+                  <a :href="silde.link | aPath">
+                    <img ref="imgAd" :src="silde.image_hash | imgUrl" alt="">
+                  </a>
+                </mt-swipe-item>
+              </mt-swipe>
+            </div>
+            <div id="classify">
+              <mt-swipe  :auto="0">
+                <mt-swipe-item ref="classifyItem"  v-for='(classItem, key) in classify' :key='key'>
+                  <div class="itemWr">
+                    <div class="classifyItem" v-for="item in classItem" :key="item.id">
+                      <router-link to="#">
+                        <div class="itemImg"><img :src="item.image_hash | imgUrl" alt=""></div>
+                        <div class="classname">{{item.name}}</div>
+                      </router-link>
+                    </div>
+                  </div>
+                </mt-swipe-item>
+              </mt-swipe>
+            </div>
+        <!-- </div> -->
+            <div >
+                <supplier :supplier='supplier' v-if="supplier"></supplier>
+            </div>
+           
+      </div>
+    </div>  
+     <tail></tail>     
   </div>
 </template>
 <script>
@@ -60,6 +65,7 @@ import BMap from 'BMap'
 import Search from 'com/search/search'
 import Supplier from 'com/supplier/supplier'
 import Tail from 'com/tail/tail'
+import BScroll from 'better-scroll'
 import Vue from 'vue'
 import { Swipe, SwipeItem } from 'mint-ui'
 import { setSession, getSession } from '@/common/public'
@@ -81,6 +87,7 @@ export default {
     let _this = this
     this.latitude = getSession('latitude')
     this.longitude = getSession('longitude')
+
     if (!this.latitude && !this.longitude) {
       _this.createdMp()
         .then(data => {
@@ -130,6 +137,18 @@ export default {
     }
   },
   methods: {
+    initScroll: function () {
+        if (!this.Bscroll) {
+          this.Bscroll = new BScroll('.scrollNode', {
+          scrollX: false,
+          scrollY: true,
+          // bounce: true,
+          click:true
+          })
+        }else{
+          this.Bscroll&&this.Bscroll.refresh()
+        }
+    },
     getAddress: function () {
       const tipNode = document.getElementById('tip')
       setTimeout(function () {

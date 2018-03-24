@@ -4,7 +4,9 @@
     <ul v-if="restaurant" v-infinite-scroll='loadMore'
             infinite-scroll-disabled="loading"
             infinite-scroll-distance="10">
-      <li class="restaurantWr" ref="restaurant" v-for="(item, key) in restaurant" :key="key">
+      <li class="restaurantWr" @click="toShop(item.restaurant.id)" ref="restaurant" 
+      v-for="(item, key) in restaurant"  :key="key">
+        <!-- <router-link to="/shop"> -->
           <div class="restaurant">
             <div class="supplierImg">
              <img :src="item.restaurant.image_path | imgUrl" alt="">
@@ -60,6 +62,7 @@
               </svg> 
             </div>
           </div>
+        <!-- </router-link>  -->
       </li>
     </ul>
   </div>
@@ -68,6 +71,7 @@
 // import Star from 'com/stars/stars'
 import axios from 'axios'
 import Vue from 'vue'
+// import BScroll from 'better-scroll'
 import { InfiniteScroll } from 'mint-ui';
 import { setSession, getSession } from '@/common/public'
 Vue.use(InfiniteScroll);
@@ -84,14 +88,20 @@ export default {
       type:1,
       latitude: null,
       longitude: null,
-      flag: true
+      flag: true,
+      geohash: null
     }
   },
   methods: {
+    toShop: function (shopId) {
+      // ev.target.$router.push({name:shop})
+      const node = event.target
+      this.$router.push({path: `/shop/${shopId}`})
+      console.log(event.target,111)
+    },
     showActivity: function (num, ev) {
       // document.getElementsByTagName
-      console.log(ev)
-
+      ev.cancelBubble = true
       let liNodes = ev.target.parentNode.getElementsByTagName('li')
       if(num){
         for (let i=0; i<liNodes.length; i++) {
@@ -122,7 +132,6 @@ export default {
           console.log(data)
           this.restaurant = [...this.restaurant, ...data.data.items]
           // data.data.items.map(item => this.restaurant.push(item))
-          console.log(this.restaurant)
       })
       // setTimeout(() => {
       //   this.loading = false;
@@ -156,6 +165,8 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
+a 
+  text-decoration none
 #supplier
   .recommend
     font-size .4rem
@@ -273,8 +284,8 @@ export default {
         border-radius: .170667vw
         border-radius: .08rem
         border-radius: .8vw
-        -webkit-transform: scale(.8)
-        transform: scale(.8)
+        -webkit-transform: scale(.5)
+        transform: scale(.5)
         -webkit-transform-origin: 0 0
         transform-origin: 0 0
         color: #fff
@@ -413,7 +424,7 @@ export default {
           height: 7.466667vw;
           width: .746667rem;
           width: 7.466667vw;
-          font-size: 1.12rem;
+          font-size: .56rem;
           color: #fff;
           display: -webkit-flex;
           display: -webkit-box;
