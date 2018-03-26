@@ -25,25 +25,47 @@
           </p>
         </div>
       </div>
+      <div class="activity">
+          <div class="activity-content">
+            <div class="activity-inner">
+              <span :style="`background-color:#${shopInfo.activities[0].icon_color}`" class="activity-icon">
+                {{shopInfo.activities[0].icon_name}}
+                <span>{{shopInfo.activities[0].icon_name}}</span>
+              </span>
+              <span class="activity-nr">{{shopInfo.activities[0].name}}</span>
+            </div>
+          </div>
+          <div v-model="popupVisible" class="activity-length">{{shopInfo.activities.length}}个优惠</div>
+      </div>
     </div>
+    <mt-popup  v-model="popupVisible"
+    position="bottom">
+    123123
+    </mt-popup>
   </div>
 </template>
 <script>
 import axios from 'axios'
+import Vue from 'vue'
 import { setSession, getSession } from '@/common/public'
+import { Popup } from 'mint-ui';
+
+Vue.component(Popup.name, Popup);
 export default {
   data () {
     return {
       shopId: null,
       latitude: null,
       longitude: null,
-      shopInfo: null
+      shopInfo: null,
+      popupVisible: false
     }
   },
   created () {
     const _this = this
     _this.latitude = getSession('latitude')
     _this.longitude = getSession('longitude')
+    //https://shadow.elemecdn.com/crayfish/h5.ele.me/service-worker?t=1522051779278
     // https://h5.ele.me/restapi/shopping/v2/menu?restaurant_id=311914
     //https://h5.ele.me/restapi/shopping/restaurant/311914?
     // extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification&extras[]=qualification&terminal
@@ -51,15 +73,54 @@ export default {
     //https://h5.ele.me/restapi/ugc/v3/restaurants/311914/ratings?has_content=true&offset=0&limit=8
 
     _this.shopId = _this.$route.params.shopId
-    console.log(this.shopId)
-    axios.get(
-      `/apis/restapi/shopping/restaurant/${_this.shopId}?
-    extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification&extras[]=qualification&terminal
-    =h5&latitude=${_this.latitude}&longitude=${_this.longitude}`
-    ).then(data => {
-      console.log(data)
-      this.shopInfo = data.data
-    })
+    const args = {
+      shopId: _this.$route.params.shopId,
+      latitude: _this.latitude,
+      longitude: _this.longitude
+      }
+    // axios.get(
+      
+    // ).then(data => {
+    //   console.log(data)
+    //   this.shopInfo = data.data
+    // })
+    // axios.get(`/cdns/crayfish/h5.ele.me/service-worker?t=${_this.shopId}`)
+
+    async function request () {
+      try {
+        let [response1,response2] = await Promise.all([_this.request1(args),
+        _this.request2(args)])
+        return {
+          response1,
+          response2
+        }
+     }
+      catch(err) {
+        console.log(err)
+      }
+    }
+  request().then(data => {
+    let {response1, response2} = data
+    this.shopInfo = response1.data
+    console.log(response1)
+  })
+  },
+  methods: {
+    showPopup: function (popupVisible){
+      popupVisible = true
+    },
+    request1: function (args) {
+      let {shopId, latitude, longitude} = args
+      return axios.get(
+        `/apis/restapi/shopping/restaurant/${shopId}?extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification&extras[]=qualification&terminal=h5&latitude=${latitude}&longitude=${longitude}`
+      )
+    },
+    request2: function (args){
+      let {shopId, latitude, longitude} = args
+      return axios.get(
+        `/apis/restapi/ugc/v3/restaurants/${shopId}/ratings?has_content=true&offset=0&limit=8`
+      )
+    }
   }
 }
 </script>
@@ -219,6 +280,107 @@ a
           margin: 2.266667vw auto 2.666667vw;
           padding: 0;
           white-space: nowrap;
-          background-color: white;                    
+          background-color: white;
+    .activity
+      display: -webkit-flex;
+      display: flex;
+      border-radius: 1px;
+      border: 1px solid #eee;
+      padding: .133333rem .213333rem;
+      padding: 1.333333vw 2.133333vw;
+      font-size: .293333rem;
+      color: #666;
+      margin: 0 .64rem;
+      margin: 0 6.4vw;
+      -webkit-align-items: center;
+      align-items: center; 
+      .activity-content
+        -webkit-flex: 1;
+        flex: 1;
+        overflow: hidden;
+        font-size: .293333rem;
+        color: #666;
+        .activity-inner
+          -webkit-align-items: center;
+          align-items: center;
+          display: -webkit-flex;
+          display: flex;
+          font-size: .346667rem;
+          -webkit-align-items: center;
+          align-items: center;
+          .activity-icon
+            margin-right: .16rem;
+            margin-right: 1.6vw;
+            font-size: .24rem;
+            padding: .053333rem .12rem;
+            padding: .533333vw 1.2vw;
+            height: .346667rem;
+            height: 3.466667vw;
+            display: inline-block;
+            box-sizing: border-box;
+            border-radius: .026667rem;
+            border-radius: .266667vw;
+            position: relative;
+            font-size: .266667rem;
+            color: transparent;
+            white-space: nowrap;
+            span
+              position: absolute;
+              left: 0;
+              top: 0;
+              right: -100%;
+              bottom: -100%;
+              -webkit-transform: scale(.5);
+              transform: scale(.5);
+              -webkit-transform-origin: 0 0;
+              transform-origin: 0 0;
+              display: -webkit-flex;
+              display: flex;
+              -webkit-align-items: center;
+              align-items: center;
+              -webkit-justify-content: center;
+              justify-content: center;
+              font-size: .533333rem
+              font-size: .48rem!important;
+              color: #fff;
+              white-space nowrap;
+          .activity-nr
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            -webkit-flex: 1;
+            flex: 1;
+            font-size: .293333rem;
+    .activity-length
+      width: 1.626667rem;
+      width: 16.266667vw;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+      position: relative;
+      padding-right: .293333rem;
+      padding-right: 2.933333vw;
+      text-align: right;
+      font-size: .093333rem;
+      color: #666;
+      font-family: Helvetica Neue,Tahoma,Arial,PingFangSC-Regular,Hiragino Sans GB,Microsoft Yahei,sans-serif;
+      line-height: 1.2;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+      &::after
+        content: "";
+        display: block;
+        border-style: solid;
+        border-width: .106667rem .093333rem 0;
+        border-width: 1.066667vw .933333vw 0;
+        border-color: rgba(0,0,0,.57) transparent transparent;
+        position: absolute;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        right: 0         
   </style>
 

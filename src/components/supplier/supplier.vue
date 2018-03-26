@@ -318,6 +318,7 @@ a
       height: 3.466667vw;
       width: .346667rem;
       width: 3.466667vw;
+      font-size 0.1rem
       margin-left: .08rem;
       margin-left: .8vw;
       color #666

@@ -17,7 +17,14 @@ module.exports = {
         pathRewrite: {
           '^/apis': ''   //需要rewrite重写的,
         } 
-      }  
+      },
+      '/cdns': {
+        target: 'https://shadow.elemecdn.com/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/cdns': ''   //需要rewrite重写的,
+        } 
+      }    
     },
 
     // Various Dev Server settings
