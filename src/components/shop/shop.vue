@@ -35,12 +35,36 @@
               <span class="activity-nr">{{shopInfo.activities[0].name}}</span>
             </div>
           </div>
-          <div v-model="popupVisible" class="activity-length">{{shopInfo.activities.length}}个优惠</div>
+          <div  @click="showPopup(true)" class="activity-length">{{shopInfo.activities.length}}个优惠</div>
+      </div>
+    </div>
+    <div class="tab">
+      <div class="tab-c onactive">
+        <div>
+          <span>
+            点餐
+          </span>
+        </div>
+      </div>
+      <div class="tab-c">
+        <div>
+          <span>
+            评价
+          </span>
+        </div>
+      </div>
+      <div class="tab-c">
+        <div>
+          <span>商家</span>
+        </div>
       </div>
     </div>
     <mt-popup  v-model="popupVisible"
     position="bottom">
-    123123
+      <div v-if="shopInfo"  class="active-wr">
+        <active @test="showPopup"  :activities="shopInfo.activities">
+        </active>
+      </div>
     </mt-popup>
   </div>
 </template>
@@ -49,7 +73,7 @@ import axios from 'axios'
 import Vue from 'vue'
 import { setSession, getSession } from '@/common/public'
 import { Popup } from 'mint-ui';
-
+import Active from 'com/active/active'
 Vue.component(Popup.name, Popup);
 export default {
   data () {
@@ -106,8 +130,8 @@ export default {
   })
   },
   methods: {
-    showPopup: function (popupVisible){
-      popupVisible = true
+    showPopup: function (bool){
+      this.popupVisible = bool
     },
     request1: function (args) {
       let {shopId, latitude, longitude} = args
@@ -121,6 +145,9 @@ export default {
         `/apis/restapi/ugc/v3/restaurants/${shopId}/ratings?has_content=true&offset=0&limit=8`
       )
     }
+  },
+  components: {
+    Active
   }
 }
 </script>
@@ -128,6 +155,8 @@ export default {
 a
   text-decoration none
 #shop
+  .shopHead
+    padding-bottom: 2.133333vw;
     .nav
       background-image url("https://fuss10.elemecdn.com/7/75/06769a8d2e4f7986cbf95766651d9jpeg.jpeg?imageMogr/format/webp/thumbnail/!40p/blur/50x40/")
       background-size: cover;
@@ -381,6 +410,40 @@ a
         top: 50%;
         -webkit-transform: translateY(-50%);
         transform: translateY(-50%);
-        right: 0         
+        right: 0
+  .active-wr
+    width 100%
+    width 100vw 
+    padding: .533333rem .693333rem;
+    padding: 5.333333vw 6.933333vw;
+    box-sizing: border-box;
+  .tab
+    line-height: 1.066667rem;
+    line-height: 10.666667vw;
+    display: -webkit-flex;
+    display: flex;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    .tab-c
+      position: relative;
+      -webkit-flex: 1;
+      flex: 1;
+      text-align: center;
+      font-size: .373333rem;
+      color: #666;
+      border-bottom: 1px solid #ddd;
+    .onactive
+      span
+        position relative
+        &::after
+          content: "";
+          position: absolute;
+          bottom: -.32rem;
+          bottom: -3.2vw;
+          left: 0;
+          right: 0;
+          height: .053333rem;
+          height: .533333vw;
+          background-color: #2395ff;                 
   </style>
 

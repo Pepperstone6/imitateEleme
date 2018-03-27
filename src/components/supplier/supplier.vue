@@ -64,6 +64,9 @@
           </div>
         <!-- </router-link>  -->
       </li>
+      <li class="loading" v-if="loadingmore">
+        <mt-spinner type="fading-circle" :size='20'></mt-spinner>&nbsp;<span style="font-size:0.22rem;color:#999">正在加载</span>
+      </li>
     </ul>
   </div>
 </template>
@@ -74,6 +77,9 @@ import Vue from 'vue'
 // import BScroll from 'better-scroll'
 import { InfiniteScroll } from 'mint-ui';
 import { setSession, getSession } from '@/common/public'
+import { Spinner } from 'mint-ui';
+
+Vue.component(Spinner.name, Spinner);
 Vue.use(InfiniteScroll);
 export default {
   props: {
@@ -89,7 +95,8 @@ export default {
       latitude: null,
       longitude: null,
       flag: true,
-      geohash: null
+      geohash: null,
+      loadingmore: true
     }
   },
   methods: {
@@ -121,15 +128,19 @@ export default {
       if (!this.flag) {
         return
       }
-     
       this.flag = false
       axios.get(
         `/apis/restapi/shopping/v3/restaurants?latitude=${this.latitude}&longitude=${this.longitude}
         &offset=${this.type*8}&limit=8&extras[]=activities&extras[]=tags&extra_filters=home&rank_id=&terminal=h5`
       ).then(data => {
           this.flag = true
+          if (data.items && data.items.length === 0) {
+            console.length(111)
+            this.flag = false
+            this.loadingmore = false 
+            return false
+          }
           this.type++
-          console.log(data)
           this.restaurant = [...this.restaurant, ...data.data.items]
           // data.data.items.map(item => this.restaurant.push(item))
       })
@@ -168,6 +179,12 @@ export default {
 a 
   text-decoration none
 #supplier
+  .loading
+    display flex 
+    justify-content center
+    padding-bottom 15vw
+    padding-bottom 1.5rem
+    align-items center
   .recommend
     font-size .4rem
     height 9.6vw
