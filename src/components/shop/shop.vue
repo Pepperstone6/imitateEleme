@@ -37,28 +37,37 @@
           </div>
           <div  @click="showPopup(true)" class="activity-length">{{shopInfo.activities.length}}个优惠</div>
       </div>
+      <div class="shop-coupon">
+          <a v-for="item in coupon" :key="item.id" class="coupon-content">
+            <i class="iconfont icon-huangguan"></i><p>{{item.description}}</p><button>领取</button>
+          </a>
+      </div>
     </div>
     <div class="tab">
-      <div class="tab-c onactive">
+      <div @click="tabDom(0, $event)" ref="tabDom" class="tab-c onactive">
         <div>
           <span>
             点餐
           </span>
         </div>
       </div>
-      <div class="tab-c">
+      <div @click="tabDom(1, $event)" ref="tabDom" class="tab-c">
         <div>
           <span>
             评价
           </span>
         </div>
       </div>
-      <div class="tab-c">
+      <div @click="tabDom(2, $event)" ref="tabDom" class="tab-c">
         <div>
           <span>商家</span>
         </div>
       </div>
     </div>
+    <goods-list
+      v-if="info"
+      :info="info"
+    ></goods-list>
     <mt-popup  v-model="popupVisible"
     position="bottom">
       <div v-if="shopInfo"  class="active-wr">
@@ -69,11 +78,17 @@
   </div>
 </template>
 <script>
+//引入插件
 import axios from 'axios'
 import Vue from 'vue'
 import { setSession, getSession } from '@/common/public'
 import { Popup } from 'mint-ui';
+//引入组件
 import Active from 'com/active/active'
+import GoodsList from 'com/goodsList/goodsList'
+//引入js文件
+import { tabDom } from '@/common/dom.js'
+//使用插件
 Vue.component(Popup.name, Popup);
 export default {
   data () {
@@ -82,7 +97,10 @@ export default {
       latitude: null,
       longitude: null,
       shopInfo: null,
-      popupVisible: false
+      popupVisible: false,
+      index: 0,
+      coupon: null,
+      info: null
     }
   },
   created () {
@@ -95,13 +113,15 @@ export default {
     // extras[]=activities&extras[]=albums&extras[]=license&extras[]=identification&extras[]=qualification&terminal
     // =h5&latitude=31.23037&longitude=121.473701
     //https://h5.ele.me/restapi/ugc/v3/restaurants/311914/ratings?has_content=true&offset=0&limit=8
-
+    // https://h5.ele.me/restapi/shopping/v1/restaurants/156020618/exclusive_hongbao/overview?latitude=31.23037&longitude=121.473701&code=0.16084438857682803&terminal=h5
+    //https://h5.ele.me/restapi/shopping/v1/restaurants/156020618/exclusive_hongbao/detail?latitude=31.23037&longitude=121.473701&code=0.8507371846392899&terminal=h5
     _this.shopId = _this.$route.params.shopId
     const args = {
       shopId: _this.$route.params.shopId,
       latitude: _this.latitude,
       longitude: _this.longitude
       }
+      _this.info = args
     // axios.get(
       
     // ).then(data => {
@@ -112,11 +132,12 @@ export default {
 
     async function request () {
       try {
-        let [response1,response2] = await Promise.all([_this.request1(args),
-        _this.request2(args)])
+        let [response1, response2, response3] = await Promise.all([_this.request1(args),
+        _this.request2(args), _this.request3(args)])
         return {
           response1,
-          response2
+          response2,
+          response3
         }
      }
       catch(err) {
@@ -124,12 +145,30 @@ export default {
       }
     }
   request().then(data => {
-    let {response1, response2} = data
+    let {response1, response2, response3} = data
     this.shopInfo = response1.data
-    console.log(response1)
+    this.coupon = response3.data
   })
+
   },
   methods: {
+    tabDom: function (num, ev) {
+      ev.cancelBubble = false
+      let className = 'onactive'
+      let reg = new RegExp('(^|\\s)' + className + '(\\s|$)')
+      const tabDoms = document.querySelectorAll('.tab-c')
+      let newArr = tabDoms[this.index].className.split(' ')
+      newArr.map((item, i) => {
+        if (item === "onactive") {
+          newArr.splice(i,1)
+        }
+      })
+      tabDoms[this.index].className = newArr.join(' ')
+      let arr = tabDoms[num].className.split(' ')
+      arr.push(className)
+      tabDoms[num].className = arr.join(' ')
+      this.index = num
+    },
     showPopup: function (bool){
       this.popupVisible = bool
     },
@@ -144,10 +183,17 @@ export default {
       return axios.get(
         `/apis/restapi/ugc/v3/restaurants/${shopId}/ratings?has_content=true&offset=0&limit=8`
       )
+    },
+    request3: function (args) {
+      let {shopId, latitude, longitude} = args
+    return axios.get(
+        `/apis/restapi/shopping/v1/restaurants/${shopId}/exclusive_hongbao/overview?latitude=${latitude}&longitude=${longitude}&code=0.16084438857682803&terminal=h5`
+      )
     }
   },
   components: {
-    Active
+    Active,
+    GoodsList
   }
 }
 </script>
@@ -157,6 +203,124 @@ a
 #shop
   .shopHead
     padding-bottom: 2.133333vw;
+    .shop-coupon
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: center;
+      justify-content: center;
+      margin-top: .213333rem;
+      margin-top: 2.133333vw;
+      .coupon-content
+        overflow hidden
+        border: .013333rem solid #fde6e3;
+        border: .133333vw solid #fde6e3;
+        color: #594519;
+        // border: 1px solid #f7eebb;
+        background: #fff8d7;
+        display: inline-block;
+        padding: 0 .16rem 0 .2rem;
+        padding: 0 1.6vw 0 2vw;
+        height: .64rem;
+        height: 6.4vw;
+        line-height: .64rem;
+        line-height: 6.4vw;
+        // background: #fff4f4;
+        color: #5c1603;
+        font-size: .293333rem;
+        font-weight: 700;
+        i
+          color #ffe339
+          // linear-gradient(90deg,#fff100,#ffe339)
+        p
+          position: relative;
+          display: inline-block;
+          padding-right: .186667rem;
+          padding-right: 1.866667vw;
+          font-weight: 700;
+          color: #594519;
+          // border: 1px solid #f7eebb;
+          background: #fff8d7;
+          display: inline-block;
+          padding: 0 .16rem 0 .2rem;
+          padding: 0 1.6vw 0 2vw;
+          height: .64rem;
+          height: 5.4vw;
+          line-height: .64rem;
+          line-height: 6.4vw;
+          // background: #fff4f4;
+          // color: #5c1603;
+          font-size: .293333rem;
+          font-weight: 700;
+          &::before
+            bottom: -1px;
+            border-bottom: none;
+            border-radius: .133333rem .133333rem 0 0;
+            border-radius: 1.333333vw 1.333333vw 0 0;
+            content: "";
+            position: absolute;
+            right: 0;
+            width: .133333rem;
+            width: 1.333333vw;
+            height: .066667rem;
+            height: .666667vw;
+            background: #fff;
+            -webkit-transform: translateX(50%);
+            transform: translateX(50%);
+            z-index: 10;
+            border: 1px solid #fde6e3;
+          &::after
+            top: -3px;
+            border-bottom: none;
+            border-radius: .133333rem .133333rem 0 0;
+            border-radius: 1.333333vw 1.333333vw 0 0;
+            content: "";
+            position: absolute;
+            right: 0;
+            width: .133333rem;
+            width: 1.333333vw;
+            height: .066667rem;
+            height: .666667vw;
+            background: #fff;
+            -webkit-transform: translateX(50%);
+            transform: translateX(50%);
+            z-index: 10;
+            border: 1px solid #fde6e3;
+        button
+          color: #594519;
+          padding-left: .16rem;
+          padding-left: 1.6vw;
+          color: #5c1704;
+          font-weight: 700;
+          background: transparent;
+          outline: none;
+          border: none;
+          font-size: inherit;
+          font-family: inherit
+          text-rendering: auto;
+          color: initial;
+          letter-spacing: normal;
+          word-spacing: normal;
+          text-transform: none;
+          text-indent: 0px;
+          text-shadow: none;
+          display: inline-block;
+          text-align: start;
+          margin: 0em;
+          font: 400 13.3333px Arial;
+          color: #594519;
+          // border: 1px solid #f7eebb;
+          background: #fff8d7;
+          display: inline-block;
+          padding: 0 .16rem 0 .2rem;
+          padding: 0 1.6vw 0 2vw;
+          height: .64rem;
+          height: 5.4vw;
+          line-height: .64rem;
+          line-height: 6.4vw;
+          // background: #fff4f4;
+          // color: #5c1603;
+          font-size: .293333rem;
+          font-weight: 700;
     .nav
       background-image url("https://fuss10.elemecdn.com/7/75/06769a8d2e4f7986cbf95766651d9jpeg.jpeg?imageMogr/format/webp/thumbnail/!40p/blur/50x40/")
       background-size: cover;
@@ -271,7 +435,9 @@ a
               font-size: .533333rem
           i
             text-align left
-            left -0.2rem
+            display flex
+            align-items  center
+            left -0.1rem
             font-size 0.53rem
             width: .4rem;
             width: 4vw;

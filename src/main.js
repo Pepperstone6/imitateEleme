@@ -20,7 +20,10 @@ Vue.filter('imgUrl', function (value) {
     value.splice(1, 0, '/')
     value.splice(4, 0, '/')
     value = value.join('')
-    return `//fuss10.elemecdn.com/${value}.${value.match(/jpeg|png/)[0]}`
+    if (value.match(/jpeg|png/)) {
+      return `//fuss10.elemecdn.com/${value}.${value.match(/jpeg|png/)[0]}`
+    }
+    
   }
 })
 Vue.filter('aPath', function (value) {

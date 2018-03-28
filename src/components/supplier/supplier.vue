@@ -104,7 +104,6 @@ export default {
       // ev.target.$router.push({name:shop})
       const node = event.target
       this.$router.push({path: `/shop/${shopId}`})
-      console.log(event.target,111)
     },
     showActivity: function (num, ev) {
       // document.getElementsByTagName
@@ -135,7 +134,6 @@ export default {
       ).then(data => {
           this.flag = true
           if (data.items && data.items.length === 0) {
-            console.length(111)
             this.flag = false
             this.loadingmore = false 
             return false
@@ -162,12 +160,10 @@ export default {
   //   }
   // },
   mounted () {
-    console.log(this.supplier, 1)
     const _this = this
     _this.restaurant = _this.supplier.data.items
     _this.latitude = JSON.parse(getSession('latitude'))
     _this.longitude = JSON.parse(getSession('longitude'))
-    console.log(this.restaurant, this.supplier)
   },
   components: {
     // Star
