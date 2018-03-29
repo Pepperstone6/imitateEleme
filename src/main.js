@@ -42,3 +42,7 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+router.beforeEach(function(to, from, next) {
+  window.scrollTo(0, 0)
+  next()
+})

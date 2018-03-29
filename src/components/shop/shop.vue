@@ -2,8 +2,8 @@
   <div id="shop">
     <div v-if="shopInfo" class="shopHead">
       <nav class="nav">
-        <router-link class="goback" to="#">
-          <i class="icon-fanhui iconfont"></i>
+        <router-link  class="goback" to="#">
+          <i  @click="goback" class="icon-fanhui iconfont"></i>
         </router-link>
       </nav>
       <div class="shopInfo">
@@ -152,6 +152,9 @@ export default {
 
   },
   methods: {
+    goback: function () {
+      this.$router.go(-1)
+    },
     tabDom: function (num, ev) {
       ev.cancelBubble = false
       let className = 'onactive'
