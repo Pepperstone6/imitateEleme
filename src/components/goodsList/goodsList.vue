@@ -46,15 +46,15 @@
                       <div class="food-buttons">
                         <span >
                           <span class="food-buttonWr">
-                            <router-link to="#" role="button" aria-label="删减商品">
+                            <router-link to="#" ref="sub" @click.native="jian" v-show="isShow" role="button" aria-label="删减商品">
                               <svg>
                                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add">
                                   <svg viewBox="0 0 44 44" id="cart-add" width="100%" height="100%"><path fill-rule="evenodd" d="M22 0C9.8 0 0 9.8 0 22s9.8 22 22 22 22-9.8 22-22S34.2 0 22 0zm0 42C11 42 2 33 2 22S11 2 22 2s20 9 20 20-9 20-20 20z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M32 20c1.1 0 2 .9 2 2s-.9 2-2 2H12c-1.1 0-2-.9-2-2s.9-2 2-2h20z" clip-rule="evenodd"></path></svg>
                                 </use>
                               </svg>
                             </router-link>
-                            <span class="add-num" aria-label="已选一份" role="button">1</span>
-                            <router-link to="#" role="button" aria-label="添加商品">
+                            <span class="add-num" ref="num" v-show="isShow" aria-label="已选一份" role="button">1</span>
+                            <router-link ref="add" to="#" @click.native="add($event)" role="button" aria-label="添加商品">
                               <svg>
                                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-minus">
                                   <svg viewBox="0 0 44 44" id="cart-minus" width="100%" height="100%"><path fill="none" d="M0 0h44v44H0z"></path><path fill-rule="evenodd" d="M22 0C9.8 0 0 9.8 0 22s9.8 22 22 22 22-9.8 22-22S34.2 0 22 0zm10 24h-8v8c0 1.1-.9 2-2 2s-2-.9-2-2v-8h-8c-1.1 0-2-.9-2-2s.9-2 2-2h8v-8c0-1.1.9-2 2-2s2 .9 2 2v8h8c1.1 0 2 .9 2 2s-.9 2-2 2z" clip-rule="evenodd"></path></svg>
@@ -89,22 +89,65 @@ export default {
     return {
       list: null,
       scrollDistance: [],
-      index: 0
+      index: 0,
+      isShow:false,
+      num: 1
     }
   },
   methods: {
+    add: function (ev) {
+      ev.cancelBubble = false
+      // const node = ev.target
+      console.log(ev)
+      if (this.num ===1 && this.isShow === false) {
+        this.isShow=true
+        console.log(this.isShow)
+        return
+      }
+      console.log(this)
+      // let qiu = {
+      //   top: this.
+      // }
+    },
+    jian: function () {
+       if (this.num ===1 && this.isShow === true) {
+        this.isShow= false
+        return
+      }
+       this.num--
+    },
     foodClass: function (key) {
-      let arr =[];
+      console.log(key)
+      const scrollNode = document.querySelector('.scroller')
       const nameNodes = document.querySelectorAll('[role="heading"]')
       const menuNode = document.querySelectorAll('[role="menu"]')
-      for (let i=0; i<nameNodes.length;i++){
-        // arr.push(nameNode[i].offsetTop)
-        menuNode[i].style.top = 10
-        console.log(window,document)
-        // menuNode[i].scrollTo = nameNodes[key].offsetTop
-      }
-      // menuNode.style.transform = `translateY(-${arr[key]}px)`
-      // transform translateY()
+        scrollNode.scrollTop > menuNode[key].offsetTop ? this.toMark(scrollNode, menuNode, key, false) : this.toMark(scrollNode, menuNode, key, true);
+    },
+    toMark: function (scrollNode, menuNode, key, to) {
+      const _this = this
+      if (to) {
+        let distance = ((menuNode[key].offsetTop - scrollNode.scrollTop)/15)
+        _this.timer = setInterval(function () {
+            scrollNode.scrollTop += distance
+            if( scrollNode.scrollTop >= menuNode[key].offsetTop) {
+              scrollNode.scrollTop = menuNode[key].offsetTop
+              clearInterval(_this.timer)
+              clearInterval(_this.timer2)
+              return 
+            }
+        }, 10)
+      } else {
+        let distance = (scrollNode.scrollTop - menuNode[key].offsetTop)/15
+          _this.timer2 = setInterval(function () {
+          scrollNode.scrollTop -= distance
+            if ( scrollNode.scrollTop <= menuNode[key].offsetTop) {
+               scrollNode.scrollTop = menuNode[key].offsetTop
+              clearInterval(_this.timer2)
+              clearInterval(_this.timer)
+              return
+            }
+          }, 20)
+        } 
     }
   },
   created () {
@@ -114,7 +157,6 @@ export default {
     axios.get(
       `/apis/restapi/shopping/v2/menu?restaurant_id=${this.info.shopId}`
     ).then(data => {
-      console.log(data, 111)
       this.list = data.data
     })
     
@@ -128,13 +170,17 @@ export default {
       // foodNode[this.index].className = ' '
       // console.log(foodNode[this.index])
       for (let m=0; m<menuNode.length;m++){
-         foodNode[m].className = ''
-        if (scrollNode.scrollTop>=menuNode[m].offsetTop&& scrollNode.scrollTop>=menuNode[m+1].offsetTop) {
+       foodNode[m].className=' '
+       if(m<menuNode.length-1) {
+          if (scrollNode.scrollTop>=menuNode[m].offsetTop&& scrollNode.scrollTop<menuNode[m+1].offsetTop) {
           this.index = m
-          console.log(m, this.index)
-          foodNode[m].className = 'bg'
+          foodNode[this.index].className = 'bg'
         }
-        // foodNode[this.index].className = 'bg'
+       } else {
+         if (scrollNode.scrollTop >= menuNode[menuNode.length-1].offsetTop) {
+            foodNode[menuNode.length-1].className = 'bg'
+         }
+       }
       }
     })
   }
