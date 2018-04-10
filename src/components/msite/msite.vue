@@ -14,9 +14,11 @@
           </div> 
         </header>
         <div class='search'>
+          <router-link to="search">
           <div class='seach-content'>
               搜索你喜欢的商品
           </div>
+          </router-link>
         </div>
         <!-- <div v-if="slideInfo.length" ref='silder-wr'  class='mint-swipe-items-wrap'> -->
             <!-- <slider>
@@ -110,7 +112,8 @@ export default {
             // let addressInfo = data[1]
             // let swipeInfo = data[0]
             let {response1: swipeInfo, response2: addressInfo, response3: classify, response4: restaurant} = data
-            tipNode.innerHTML = addressInfo.data.address
+            tipNode.innerHTML = addressInfo.data.name
+             setSession('cityId', addressInfo.data.city_id)
             setSession('slider', swipeInfo.data[0].entries)
             setSession('classify', classify.data)
             setSession('supplier', restaurant)
@@ -131,6 +134,7 @@ export default {
           }&longitude=${this.longitude}`
         )
         .then(data => {
+          setSession('cityId', data.data.city_id)
           const tipNode = document.getElementById('tip')
           tipNode.innerHTML = data.data.name
         })
@@ -159,6 +163,8 @@ export default {
             )}&longitude=${tipNode.getAttribute('longitude')}`
           )
           .then(data => {
+            console.log(data,111111111111)
+            setSession('cityId', data.data.city_id)
             tipNode.innerHTML = data.data.name
           })
       }, 3000)
@@ -266,7 +272,9 @@ export default {
   z-index: 999
   padding: 2vw 3.733333vw
   margin: -0.133333vw 0
-
+  a {
+    text-decoration none
+  }
   .seach-content {
     height: 9.6vw
     background: #fff

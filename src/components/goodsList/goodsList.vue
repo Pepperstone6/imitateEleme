@@ -97,7 +97,7 @@ export default {
   methods: {
     add: function (ev) {
       ev.cancelBubble = false
-      // const node = ev.target
+      const node = ev.target
       console.log(ev)
       if (this.num ===1 && this.isShow === false) {
         this.isShow=true
@@ -105,9 +105,9 @@ export default {
         return
       }
       console.log(this)
-      // let qiu = {
-      //   top: this.
-      // }
+      let qiu = {
+        top: node.offsetTop
+      }
     },
     jian: function () {
        if (this.num ===1 && this.isShow === true) {
@@ -117,7 +117,6 @@ export default {
        this.num--
     },
     foodClass: function (key) {
-      console.log(key)
       const scrollNode = document.querySelector('.scroller')
       const nameNodes = document.querySelectorAll('[role="heading"]')
       const menuNode = document.querySelectorAll('[role="menu"]')
@@ -125,6 +124,8 @@ export default {
     },
     toMark: function (scrollNode, menuNode, key, to) {
       const _this = this
+      _this.timer && clearInterval(_this.timer)
+      _this.timer2 && clearInterval(_this.timer2)
       if (to) {
         let distance = ((menuNode[key].offsetTop - scrollNode.scrollTop)/15)
         _this.timer = setInterval(function () {
@@ -163,12 +164,20 @@ export default {
   },
   updated () {
     const menuNode = document.querySelectorAll('[role="menu"]')
+    const _this = this
     const scrollNode = document.querySelector('.scroller')
     const foodNode = document.querySelectorAll('[role="food"]')
+    let h = ''
     foodNode[this.index].className='bg'
+    // Array.map.bind(menuNode)
+    Array.prototype.map.bind(menuNode)
+    console.log(menuNode ,h)
     scrollNode.addEventListener('scroll', function (ev) {
       // foodNode[this.index].className = ' '
       // console.log(foodNode[this.index])
+      // _this.timer && clearInterval(_this.timer)
+      // _this.timer2 && clearInterval(_this.timer2)
+      console.log(scrollNode.scrollTop, scrollNode.offsetHeight, ev)
       for (let m=0; m<menuNode.length;m++){
        foodNode[m].className=' '
        if(m<menuNode.length-1) {

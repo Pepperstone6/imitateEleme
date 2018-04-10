@@ -36,6 +36,9 @@ Vue.filter('distance', function (value) {
   }
   return value + 'm'
 })
+Vue.filter('word', function (value){
+  console.log(value)
+})
 new Vue({
   el: '#app',
   router,

@@ -18,14 +18,5 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-  .searchWr
-    background-image: -webkit-gradient(linear,left top,right top,from(#0af),to(#0085ff));
-    background-image: -webkit-linear-gradient(left,#0af,#0085ff);
-    background-image: linear-gradient(90deg,#0af,#0085ff);
-    padding: .2rem .373333rem;
-    padding: 2vw 3.733333vw;
-    margin: -.013333rem 0;
-    margin: -.133333vw 0;
-    .search
-      background #fff
+  
 </style>
