@@ -139,6 +139,7 @@ export default {
           tipNode.innerHTML = data.data.name
         })
     }
+    const scroller = document.getElementById('msite')
   },
   methods: {
     initScroll: function () {

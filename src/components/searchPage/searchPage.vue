@@ -15,33 +15,46 @@
                 </use>
               </svg>
               <input type="search" autofocus="autofocus" @keyup="search" v-model="search1" placeholder="输入商家、商品名称" class="search-input">
-              <button type="submit" class="search-btn">搜索</button>
+              <button  @click="searchBtn" type="submit" class="search-btn">搜索</button>
           </form>  
       </section>
-      <div class="seach-content">
+      <div class="seach-content" v-show="!isShow">
         <div style>
         <ul>
-          <li role="button" v-if="restaurants" v-for="item in restaurants" :key="item.id">
+          <li @click="searchFood(item.name,$event)"  role="button" v-if="restaurants" v-for="item in restaurants" :key="item.id">
             <div class="search-shop">
               <img :src="item.image_path|imgUrl" alt="">
               <div class="shop-info">
                 <div>
                   <p class="shop-title">
-                    <span class="shop-p">
-                      <span class="search-words">{{item.word}}</span>{{item.name}}
+                    <span class="shop-p"  v-html="item.name">
+                    </span>
+                    <span v-if="item.tags.length" v-for="(icon, index) in item.tags" :key="index" class="iconsong" :style="`background:#${icon.name_color}`">
+                      {{icon.name}}
                     </span>
                   </p>
                 </div>
+                <span class="search-rating">
+                  评价{{item.rating.toFixed(1)}}
+                </span>
               </div>
             </div>
+          </li>
+          <li @click="searchFood(item.name,$event)" class="search-word" v-for="(item, index) in words" :key="index">
+            <svg class="search-icon">
+              <use xlink:href="#search">
+                <svg viewBox="0 0 12 12" id="search" width="100%" height="100%"><g fill="none" fill-rule="evenodd"><path fill="#F5F5F5" d="M-179-10h375v805h-375z"></path><path fill="#FFF" d="M-179 0h375v22h-375z"></path><text font-family="PingFangSC-Regular, PingFang SC" font-size="11" transform="translate(-179)"><tspan x="179.5" y="16" fill="#333">黄焖鸡</tspan> <tspan x="212.5" y="16" fill="#999">标准份</tspan></text><g><path fill="#FFF" d="M-179-11h375v44h-375z"></path><path fill="#F5F5F5" d="M-167-3h351a2 2 0 0 1 2 2v24a2 2 0 0 1-2 2h-351a2 2 0 0 1-2-2V-1a2 2 0 0 1 2-2z"></path><path fill="#999" fill-rule="nonzero" d="M11.255 5.338C11.11 2.475 8.787.152 5.924.008A5.632 5.632 0 0 0 .008 5.926c.145 2.845 2.44 5.158 5.284 5.325a5.636 5.636 0 0 0 2.24-.319.507.507 0 1 0-.342-.954 4.622 4.622 0 0 1-1.839.261c-2.327-.137-4.211-2.036-4.33-4.365A4.618 4.618 0 0 1 5.871 1.02c2.344.119 4.251 2.026 4.37 4.37a4.602 4.602 0 0 1-1.275 3.434.62.62 0 0 0 .007.866l2.16 2.16a.507.507 0 1 0 .718-.716L9.956 9.238a5.615 5.615 0 0 0 1.3-3.9z"></path></g></g></svg>
+              </use>
+            </svg>
+            <p class="word" v-html="item.word"></p>
           </li>
         </ul>
         </div>
       </div>
-      <section>
-        <header class="histry"> 
+      <section v-show="isShow">
+        <header class="histry" v-if="his"> 
           <span>历史搜索</span>
-         <div aria-label="清除历史搜索" role="button" class="index-3cPNo">
+         <div @click="clearHis" aria-label="清除历史搜索" role="button" class="index-3cPNo">
             <svg>
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bin">
                 <svg viewBox="0 0 512 512" id="bin" width="100%" height="100%"><path d="M64 160v320c0 17.6 14.4 32 32 32h288c17.6 0 32-14.4 32-32V160H64zm96 288h-32V224h32v224zm64 0h-32V224h32v224zm64 0h-32V224h32v224zm64 0h-32V224h32v224zM424 64H320V24c0-13.2-10.8-24-24-24H184c-13.2 0-24 10.8-24 24v40H56c-13.2 0-24 10.8-24 24v40h416V88c0-13.2-10.8-24-24-24zm-136 0h-96V32.401h96V64z"></path></svg>
@@ -49,12 +62,23 @@
             </svg>
           </div>
         </header>
+        <section class="his-con-wr">
+          <button @click="hotFood($event)" class="hisBtn" v-for="(item, index) in his" :key="index">{{item}}</button>
+        </section>
+      </section>
+      <section v-show="isShow" style="margin-top: .4rem;margin-top: 4vw;">
+        <header class="histry" > 
+          <span>热门搜索</span>
+        </header>
+        <section class="his-con-wr">
+          <button @click="hotFood($event)" class="hisBtn" v-for="(item, index) in hotFoods" :key="index">{{item.word}}</button>
+        </section>
       </section>
     </div>
   </div>
 </template>
 <script>
-import {setSession, getSession} from '@/common/public.js'
+import {setSession, getSession, setLocation, getLocation} from '@/common/public.js'
 import axios from 'axios'
 export default {
   data() {
@@ -65,34 +89,106 @@ export default {
       cityId: null,
       words: null,
       restaurants:null,
-      foods: null
+      foods: null,
+      his: null,
+      hotFoods: null,
+      isShow: true,
+      shop:null
     }
   },
   mounted() {
     this.lat = getSession('latitude')
     this.lon = getSession('longitude')
     this.cityId = getSession('cityId')
+    this.his = getLocation('his') ? JSON.parse(getLocation('his')) : null
+    axios.get(
+      `/apis/restapi/shopping/v3/hot_search_words?latitude=${this.lat}&longitude=${this.lon}`
+    ).then(data => {
+      this.hotFoods = data.data
+    })
   },
   methods: {
     search: function () {
+      if(!this.search1) {
+        this.isShow = true
+        return
+      }
+      this.isShow = false
       axios.get(`/apis/restapi/shopping/v1/typeahead?kw=${this.search1}&latitude=${this.lat}&longitude=${this.lon}&city_id=${this.cityId}`)
         .then(data => { 
           data.data.restaurants.map(res => {
-            // let reg = new RegExp(/data.data.search_word/,"g")
-          res.name = res.name.split('')
-          console.log(res.name);
-          
+            let reg = new RegExp(data.data.search_word,"g")
+            let arr = reg.exec(res.name)
+           if(arr) {
+            // let arr1 = res.name.split(arr[0])
+            let reg = '/'+data.data.search_word+'/g'
+           res.name = res.name.replace(eval(reg), '<span style="display:inline-block;color:#999" class="search-words">'+data.data.search_word+'</span>','g')
+
+           }
           })
-          this.words = data.data.words
+          data.data.word_with_meta.map(word => {
+            let reg = new RegExp(data.data.search_word,"g")
+            let arr = reg.exec(word.word)
+            if(arr) {
+              // let arr1 = res.name.split(arr[0])
+              let reg = '/'+data.data.search_word+'/g'
+            word.word = word.word.replace(eval(reg), '<span style="display:inline-block;color:#999" class="search-words">'+data.data.search_word+'</span>','g')
+           }
+          })
+          this.words = data.data.word_with_meta
+          
           this.restaurants = data.data.restaurants
           console.log(data)
         })
+    },
+    searchBtn: function(){
+      // window.localStorage.clear('his')
+      if (!getLocation('his')) {
+        let arr = []
+        arr.push(this.search1)
+        setLocation('his', JSON.stringify(arr))
+      }else{
+       
+        let arr1 = JSON.parse(getLocation('his'))
+        if(!arr1.some(value => value === this.search1)){
+          arr1.push(this.search1)
+          setLocation('his', JSON.stringify(arr1))
+        }
+      }
+       axios.get(
+        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.search1}&latitude=${this.lat}&longitude=${this.lon}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+        ).then(data => {
+           this.shop = data
+        })
+    },
+    clearHis: function () {
+      window.localStorage.clear('his')
+      this.his = null
+    },
+    hotFood: function(ev){
+      axios.get(
+        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.lat}&longitude=${this.lon}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+        ).then(data => {
+          this.shop = data
+        })
+    },
+    searchFood: function(keyword, ev) {
+      console.log(this)
+            const _this = this
+            let reg = new RegExp(_this.search1,"g")
+            let arr = reg.exec(keyword)
+            if(arr) {
+              // let arr1 = keyword.split(arr[0])
+              let reg = `/<span style="display:inline-block;color:#999" class="search-words">${this.search1}</span>/g`
+              // keyword = keyword.replace(eval(reg), _this.search1,'g')
+              eval(reg)
+           }
+      console.log(keyword)
     }
   }
 }
 </script>
 <style lang="stylus" scoped>
-//  0.5vw = 0.5vw
 .search-wr {
   height: 10vh
 
@@ -247,8 +343,83 @@ export default {
               color: #999;
             }
           }
+          .iconsong{
+            color: #fff;
+            font-size: .533333rem;
+            border-radius: .053333rem;
+            border-radius: .533333vw;
+            height: .693333rem;
+            height: 6.933333vw;
+            line-height: .693333rem;
+            line-height: 6.933333vw;
+            text-align: center;
+            display: inline-block;
+            padding: 0 .08rem;
+            padding: 0 .8vw;
+            margin-left: .08rem;
+            margin-left: .8vw;
+            -webkit-transform: scale(.5);
+            transform: scale(.5);
+            -webkit-transform-origin: 0 50%;
+            transform-origin: 0 50%;
+          }
         }
       }
+    }
+  }
+  .search-rating {
+    color: #999;
+    font-size: .32rem;
+  }
+  .search-words {
+    color: #999;
+  }
+  .search-word{
+    display: -webkit-flex;
+    display: flex;
+    height: 1.173333rem;
+    height: 11.733333vw;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: 0 .4rem;
+    padding: 0 4vw;
+    font-size: .373333rem;
+  }
+  .search-icon{
+    height: .346667rem;
+    height: 3.466667vw;
+    width: .346667rem;
+    width: 3.466667vw;
+    margin-right: .32rem;
+    margin-right: 3.2vw;
+  }
+  .word{
+    -webkit-flex: 1;
+    flex: 1;
+    height: 1.173333rem;
+    height: 11.733333vw;
+    line-height: 1.173333rem;
+    line-height: 11.733333vw;
+    border-bottom: 1px solid #e3e3e3;
+  }
+  .his-con-wr{
+    padding: 0 .333333rem .333333rem;
+    padding: 0 3.333333vw 3.333333vw;
+    .hisBtn{
+      outline: none;
+      border: none;
+      display: inline-block;
+      border-radius: .066667rem;
+      border-radius: .666667vw;
+      padding: .2rem .266667rem;
+      padding: 2vw 2.666667vw;
+      font-size: .373333rem;
+      margin-right: .333333rem;
+      margin-right: 3.333333vw;
+      margin-top: .333333rem;
+      margin-top: 3.333333vw;
+      color: #666;
+      background-color: #f7f7f7;
     }
   }
 }
