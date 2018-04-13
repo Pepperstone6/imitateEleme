@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Msite from 'com/msite/msite'
 import Shop from 'com/shop/shop'
 import SearchPage from 'com/searchPage/searchPage'
+import SearchShop from 'com/searchShop/searchShop'
 Vue.use(Router)
 export default new Router({
   mode: 'history',
@@ -22,7 +23,14 @@ export default new Router({
     },{
       path: '/search',
       name: 'searchPage',
-      component: SearchPage
+      component: SearchPage,
+      children:[
+        {
+          path: 'shop',
+          name: 'searchShop',
+          component: SearchShop
+        }
+      ]
     }
   ]
 })

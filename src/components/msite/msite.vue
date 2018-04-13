@@ -9,7 +9,7 @@
               定位中...
             </div>
           </div>
-          <div class="fixedSearch">
+          <div class="fixedSearch" v-if="searchShow">
             <search></search>
           </div> 
         </header>
@@ -82,7 +82,8 @@ export default {
       imgQuery: 'imageMogr/format/webp/',
       classify: [],
       classifyBig:[],
-      supplier: null
+      supplier: null,
+      searchShow: false
     }
   },
   mounted () {
@@ -140,6 +141,13 @@ export default {
         })
     }
     const scroller = document.getElementById('msite')
+    window.addEventListener('scroll', function(ev) {
+      if(this.scrollY>81){
+        _this.searchShow = true
+      }else{
+        _this.searchShow = false
+      }
+    })
   },
   methods: {
     initScroll: function () {
@@ -248,7 +256,6 @@ export default {
   top 0
   left 0
   z-index 99
-  display none
 .head {
   background-image: linear-gradient(90deg, #0af, #0085ff)
   padding: 2.666667vw 3.733333vw 0

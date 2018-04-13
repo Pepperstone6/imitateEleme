@@ -1,7 +1,7 @@
 <template>
   <div >
     <div class="searchWr">
-      <router-link to="#">
+      <router-link to="/search">
           <span>搜索你喜欢的商品</span>
       </router-link> 
     </div>
