@@ -9,6 +9,8 @@ import '@/static/iconfont/iconfont.css'
 import '@/common/adaptive'
 import '@/common/public.js'
 import'mint-ui/lib/style.css'
+
+import store from '@/store/index.js'
 // import Mint from 'mint-ui'
 // Vue.use(Mint)
 Vue.config.productionTip = false
@@ -42,6 +44,7 @@ Vue.filter('word', function (value){
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

@@ -86,11 +86,16 @@ export default {
       searchShow: false
     }
   },
+  beforeCreate () {
+    // console.log(this.$store.dis)
+  },
   mounted () {
     let _this = this
     this.latitude = getSession('latitude')
     this.longitude = getSession('longitude')
 
+    this.$store.dispatch('getPosition')
+    
     if (!this.latitude && !this.longitude) {
       _this.createdMp()
         .then(data => {
