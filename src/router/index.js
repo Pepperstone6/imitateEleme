@@ -1,12 +1,28 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Msite from 'com/msite/msite'
-import Shop from 'com/shop/shop'
-import SearchPage from 'com/searchPage/searchPage'
-import SearchShop from 'com/searchShop/searchShop'
 Vue.use(Router)
+const Msite = (resolve) =>{
+  import ('com/msite/msite').then(module => {
+    resolve(module)
+  })
+}
+const SearchPage = (resolve) =>{
+  import ('com/searchPage/searchPage').then(module => {
+    resolve(module)
+  })
+}
+const SearchShop = (resolve) =>{
+  import ('com/searchShop/searchShop').then(module => {
+    resolve(module)
+  })
+}
+const Shop = (resolve) =>{
+  import ('com/shop/shop').then(module => {
+    resolve(module)
+  })
+}
 export default new Router({
-  mode: 'history',
+  mode: 'hash',
   routes: [
     {
       path: '/',

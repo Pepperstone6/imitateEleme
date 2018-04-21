@@ -18,7 +18,7 @@
                     <span>{{foods.description}}</span>
                   </div>
                 </dt>
-                <dd  v-for="food in foods.foods" :aria-label="food.description" :key="food.id">
+                <dd  v-for="food in foods.foods"  :aria-label="food.description" :key="food.id">
                   <div class="food-detail">
                     <span class="food-left"><span v-if="food.attrs.length"  class="brand">招牌<span>招牌</span></span>
                        <img :src="food.image_path|imgUrl" alt="">
@@ -45,23 +45,7 @@
                       </strong>
                       <div class="food-buttons">
                         <span >
-                          <span class="food-buttonWr">
-                            <router-link to="#" ref="sub" @click.native="jian" v-show="isShow" role="button" aria-label="删减商品">
-                              <svg>
-                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add">
-                                  <svg viewBox="0 0 44 44" id="cart-add" width="100%" height="100%"><path fill-rule="evenodd" d="M22 0C9.8 0 0 9.8 0 22s9.8 22 22 22 22-9.8 22-22S34.2 0 22 0zm0 42C11 42 2 33 2 22S11 2 22 2s20 9 20 20-9 20-20 20z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M32 20c1.1 0 2 .9 2 2s-.9 2-2 2H12c-1.1 0-2-.9-2-2s.9-2 2-2h20z" clip-rule="evenodd"></path></svg>
-                                </use>
-                              </svg>
-                            </router-link>
-                            <span class="add-num" ref="num" v-show="isShow" aria-label="已选一份" role="button">1</span>
-                            <router-link ref="add" to="#" @click.native="add($event)" role="button" aria-label="添加商品">
-                              <svg>
-                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-minus">
-                                  <svg viewBox="0 0 44 44" id="cart-minus" width="100%" height="100%"><path fill="none" d="M0 0h44v44H0z"></path><path fill-rule="evenodd" d="M22 0C9.8 0 0 9.8 0 22s9.8 22 22 22 22-9.8 22-22S34.2 0 22 0zm10 24h-8v8c0 1.1-.9 2-2 2s-2-.9-2-2v-8h-8c-1.1 0-2-.9-2-2s.9-2 2-2h8v-8c0-1.1.9-2 2-2s2 .9 2 2v8h8c1.1 0 2 .9 2 2s-.9 2-2 2z" clip-rule="evenodd"></path></svg>
-                                </use>
-                              </svg>
-                            </router-link>
-                          </span>
+                          <add-cart :updataCount="updataCount" :food="food" ></add-cart>
                         </span>
                       </div>
                     </section>
@@ -73,10 +57,13 @@
           </section>
         <!-- </div> -->
       </main>
+      <shop-cart></shop-cart>
     </div>
   </div>
 </template>
 <script>
+import addCart from 'com/addCart/addCart'
+import shopCart from 'com/shopCart/shopCart'
 import axios from 'axios'
 import BScroll from 'better-scroll'
 export default {
@@ -91,30 +78,14 @@ export default {
       scrollDistance: [],
       index: 0,
       isShow:false,
-      num: 1
+      num: 1,
+      food:[]
     }
   },
   methods: {
-    add: function (ev) {
-      ev.cancelBubble = false
-      const node = ev.target
-      console.log(ev)
-      if (this.num ===1 && this.isShow === false) {
-        this.isShow=true
-        console.log(this.isShow)
-        return
-      }
-      console.log(this)
-      let qiu = {
-        top: node.offsetTop
-      }
-    },
-    jian: function () {
-       if (this.num ===1 && this.isShow === true) {
-        this.isShow= false
-        return
-      }
-       this.num--
+    updataCount: function (food, count) {
+      food.count = count
+      console.log(food.count)
     },
     foodClass: function (key) {
       const scrollNode = document.querySelector('.scroller')
@@ -152,6 +123,7 @@ export default {
     }
   },
   created () {
+    console.log(this)
     //https://h5.ele.me/restapi/shopping/v2/menu?restaurant_id=161677158
     // let str ="06a05b267f338acfeb8bd682d16e836dpng"
     // console.log(str.match(/jpeg|png/)[0])
@@ -171,13 +143,11 @@ export default {
     foodNode[this.index].className='bg'
     // Array.map.bind(menuNode)
     Array.prototype.map.bind(menuNode)
-    console.log(menuNode ,h)
     scrollNode.addEventListener('scroll', function (ev) {
       // foodNode[this.index].className = ' '
       // console.log(foodNode[this.index])
       // _this.timer && clearInterval(_this.timer)
       // _this.timer2 && clearInterval(_this.timer2)
-      console.log(scrollNode.scrollTop, scrollNode.offsetHeight, ev)
       for (let m=0; m<menuNode.length;m++){
        foodNode[m].className=' '
        if(m<menuNode.length-1) {
@@ -192,6 +162,10 @@ export default {
        }
       }
     })
+  },
+  components: {
+    addCart,
+    shopCart
   }
 }
 </script>
