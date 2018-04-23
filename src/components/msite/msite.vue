@@ -14,7 +14,7 @@
           </div> 
         </header>
         <div class='search'>
-          <router-link to="search">
+          <router-link to="/search">
           <div class='seach-content'>
               搜索你喜欢的商品
           </div>
@@ -70,7 +70,8 @@ import Tail from 'com/tail/tail'
 import BScroll from 'better-scroll'
 import Vue from 'vue'
 import { Swipe, SwipeItem } from 'mint-ui'
-import { setSession, getSession } from '@/common/public'
+import { setSession, getSession, createPosition } from '@/common/public'
+
 Vue.component(Swipe.name, Swipe)
 Vue.component(SwipeItem.name, SwipeItem)
 export default {
@@ -83,6 +84,7 @@ export default {
       classify: [],
       classifyBig:[],
       supplier: null,
+      position: null,
       searchShow: false
     }
   },
@@ -93,24 +95,21 @@ export default {
     let _this = this
     this.latitude = getSession('latitude')
     this.longitude = getSession('longitude')
-
-    this.$store.dispatch('getPosition')
-    
-    if (!this.latitude && !this.longitude) {
-      _this.createdMp()
-        .then(data => {
-          setSession('latitude', data.point.lat)
-          setSession('longitude', data.point.lng)
-          _this.latitude = data.point.lat
-          _this.longitude = data.point.lng
-          async function request () {
-            try {
-                let [response1, response2, response3, response4] = await Promise.all([_this.request1(_this.latitude, _this.longitude),
-                 _this.request2(_this.latitude, _this.longitude), _this.request3(_this.latitude, _this.longitude),
-                  _this.request4(_this.latitude, _this.longitude)])
-                return {response1, response2, response3, response4}
-            }catch (e) {
-              console.log(e)
+       createPosition().then(position => {
+         _this.$store.dispatch('getPosition', position)
+          _this.position = _this.$store.state.position
+       })
+      .then(()=>{
+        async function request () {
+          try {
+                //   console.log(_this.$store.state)
+                //  console.log(_this.$store.state.position, typeof _this.$store.state.position)
+              let [response1, response2, response3, response4] = await Promise.all([_this.request1(_this.position.lat, _this.position.lng),
+                _this.request2(_this.position.lat, _this.position.lng), _this.request3(_this.position.lat, _this.position.lng),
+                _this.request4(_this.position.lat, _this.position.lng)])
+              return {response1, response2, response3, response4}
+          }catch (e) {
+            console.log(e)
             }
           }
           request().then(data => {
@@ -119,32 +118,69 @@ export default {
             // let swipeInfo = data[0]
             let {response1: swipeInfo, response2: addressInfo, response3: classify, response4: restaurant} = data
             tipNode.innerHTML = addressInfo.data.name
-             setSession('cityId', addressInfo.data.city_id)
+            setSession('cityId', addressInfo.data.city_id)
+            _this.$store.dispatch('addPositionInfo', {key:'cityId', val: addressInfo.data.city_id})
+            console.log(this.$store.state.position, 1111111111)
+            console.log(addressInfo.data)
             setSession('slider', swipeInfo.data[0].entries)
             setSession('classify', classify.data)
             setSession('supplier', restaurant)
             _this.slideInfo = swipeInfo.data[0].entries
             _this.classify = _this.separation(_this, classify.data[0].entries)
             _this.supplier = restaurant
-          })
         })
-    } else {
-      _this.slideInfo = JSON.parse(getSession('slider'))
-      _this.supplier = JSON.parse(getSession('supplier'))
-      console.log(_this.supplier)
-      _this.classify = _this.separation(_this, JSON.parse(getSession('classify'))[0].entries)
-      axios
-        .get(
-           `/apis/restapi/bgs/poi/reverse_geo_coding?latitude=${
-            this.latitude
-          }&longitude=${this.longitude}`
-        )
-        .then(data => {
-          setSession('cityId', data.data.city_id)
-          const tipNode = document.getElementById('tip')
-          tipNode.innerHTML = data.data.name
-        })
-    }
+      })
+      
+   
+    // if (!this.latitude && !this.longitude) {
+    //   _this.createdMp()
+    //     .then(data => {
+    //       setSession('latitude', data.point.lat)
+    //       setSession('longitude', data.point.lng)
+    //       _this.latitude = data.point.lat
+    //       _this.longitude = data.point.lng
+    //       async function request () {
+    //         try {
+    //             let [response1, response2, response3, response4] = await Promise.all([_this.request1(_this.latitude, _this.longitude),
+    //              _this.request2(_this.latitude, _this.longitude), _this.request3(_this.latitude, _this.longitude),
+    //               _this.request4(_this.latitude, _this.longitude)])
+    //             return {response1, response2, response3, response4}
+    //         }catch (e) {
+    //           console.log(e)
+    //         }
+    //       }
+    //       request().then(data => {
+    //         const tipNode = document.getElementById('tip')
+    //         // let addressInfo = data[1]
+    //         // let swipeInfo = data[0]
+    //         let {response1: swipeInfo, response2: addressInfo, response3: classify, response4: restaurant} = data
+    //         tipNode.innerHTML = addressInfo.data.name
+    //          setSession('cityId', addressInfo.data.city_id)
+    //         setSession('slider', swipeInfo.data[0].entries)
+    //         setSession('classify', classify.data)
+    //         setSession('supplier', restaurant)
+    //         _this.slideInfo = swipeInfo.data[0].entries
+    //         _this.classify = _this.separation(_this, classify.data[0].entries)
+    //         _this.supplier = restaurant
+    //       })
+    //     })
+    // } else {
+    //   _this.slideInfo = JSON.parse(getSession('slider'))
+    //   _this.supplier = JSON.parse(getSession('supplier'))
+    //   console.log(_this.supplier)
+    //   _this.classify = _this.separation(_this, JSON.parse(getSession('classify'))[0].entries)
+    //   axios
+    //     .get(
+    //        `/apis/restapi/bgs/poi/reverse_geo_coding?latitude=${
+    //         this.latitude
+    //       }&longitude=${this.longitude}`
+    //     )
+    //     .then(data => {
+    //       setSession('cityId', data.data.city_id)
+    //       const tipNode = document.getElementById('tip')
+    //       tipNode.innerHTML = data.data.name
+    //     })
+    // }
     const scroller = document.getElementById('msite')
     window.addEventListener('scroll', function(ev) {
       if(this.scrollY>81){
@@ -168,6 +204,7 @@ export default {
         }
     },
     getAddress: function () {
+      const _this = this
       const tipNode = document.getElementById('tip')
       setTimeout(function () {
         axios
@@ -177,7 +214,6 @@ export default {
             )}&longitude=${tipNode.getAttribute('longitude')}`
           )
           .then(data => {
-            console.log(data,111111111111)
             setSession('cityId', data.data.city_id)
             tipNode.innerHTML = data.data.name
           })

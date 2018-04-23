@@ -92,8 +92,7 @@ export default {
       restaurant: null,
       index: true,
       type:1,
-      latitude: null,
-      longitude: null,
+      position: null,
       flag: true,
       geohash: null,
       loadingmore: true
@@ -129,7 +128,7 @@ export default {
       }
       this.flag = false
       axios.get(
-        `/apis/restapi/shopping/v3/restaurants?latitude=${this.latitude}&longitude=${this.longitude}
+        `/apis/restapi/shopping/v3/restaurants?latitude=${this.position.lat}&longitude=${this.position.lng}
         &offset=${this.type*8}&limit=8&extras[]=activities&extras[]=tags&extra_filters=home&rank_id=&terminal=h5`
       ).then(data => {
           this.flag = true
@@ -162,8 +161,9 @@ export default {
   mounted () {
     const _this = this
     _this.restaurant = _this.supplier.data.items
-    _this.latitude = JSON.parse(getSession('latitude'))
-    _this.longitude = JSON.parse(getSession('longitude'))
+    // _this.latitude = JSON.parse(getSession('latitude'))
+    // _this.longitude = JSON.parse(getSession('longitude'))
+    _this.position = _this.$store.state.position
   },
   components: {
     // Star

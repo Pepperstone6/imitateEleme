@@ -75,18 +75,20 @@ export default {
       shopList:null,
       foodsList: null,
       lastIndex: null,
-      orderBy:null
+      orderBy:null,
+      position: null
     }
   },
   beforeMount() {
     this.lat = getSession('latitude')
     this.lon = getSession('longitude')
     this.cityId = getSession('cityId')
+    this.position = this.$store.state.position
     this.$parent.searchIndex = false
     this.keyword = this.$route.query.keyword
     this.$parent.hintInfo = this.$route.query.keyword
     axios.get(
-      `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.lat}&longitude=${this.lon}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+      `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
       ).then(data => {
           this.shopInfo = data.data
       })
@@ -113,7 +115,7 @@ export default {
      addClass(node, styl)
       if(num === 0){
          axios.get(
-          `/apis/restapi/shopping/v2/restaurant/category?latitude=${this.lat}&longitude=${this.lon}`
+          `/apis/restapi/shopping/v2/restaurant/category?latitude=${this.position.lat}&longitude=${this.position.lng}`
           ).then(data => {
             this.shopList = data.data
             console.log(this.shopList)
@@ -144,7 +146,7 @@ export default {
       let node = ev.currentTarget
       this.orderBy = num
       axios.get(
-      `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.lat}&longitude=${this.lon}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5&order_by=${num}`
+      `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5&order_by=${num}`
       ).then(data => {
         console.log(data)
       })
