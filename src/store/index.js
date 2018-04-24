@@ -6,10 +6,13 @@ import state from './state.js'
 import mutations from './mutation.js'
 Vue.use(Vuex)
 
+import {vueLocal} from './plugins'
+
 const store = new Vuex.Store({
   state,
   getters,
   mutations,
-  actions
+  actions,
+  plugins: [vueLocal.plugin]
 })
 export default  store

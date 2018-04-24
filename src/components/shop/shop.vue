@@ -100,13 +100,15 @@ export default {
       popupVisible: false,
       index: 0,
       coupon: null,
-      info: null
+      info: null,
+      position: null
     }
   },
   created () {
     const _this = this
-    _this.latitude = getSession('latitude')
-    _this.longitude = getSession('longitude')
+    // _this.latitude = getSession('latitude')
+    // _this.longitude = getSession('longitude')
+    _this.position = _this.$store.state.position
     //https://shadow.elemecdn.com/crayfish/h5.ele.me/service-worker?t=1522051779278
     // https://h5.ele.me/restapi/shopping/v2/menu?restaurant_id=311914
     //https://h5.ele.me/restapi/shopping/restaurant/311914?
@@ -116,10 +118,11 @@ export default {
     // https://h5.ele.me/restapi/shopping/v1/restaurants/156020618/exclusive_hongbao/overview?latitude=31.23037&longitude=121.473701&code=0.16084438857682803&terminal=h5
     //https://h5.ele.me/restapi/shopping/v1/restaurants/156020618/exclusive_hongbao/detail?latitude=31.23037&longitude=121.473701&code=0.8507371846392899&terminal=h5
     _this.shopId = _this.$route.params.shopId
+    console.log(_this.position)
     const args = {
       shopId: _this.$route.params.shopId,
-      latitude: _this.latitude,
-      longitude: _this.longitude
+      latitude: _this.position.lat,
+      longitude: _this.position.lng
       }
       _this.info = args
     // axios.get(

@@ -22,23 +22,34 @@
   >
  <div class="popup-wr">
     <h1 class="specs-name">{{food.name}}</h1>
-    <div class="specs-in">
+    <div class="specs-in" v-if="food.specifications.length > 0" v-for=" (specs,key) in food.specifications" :key="key">
       <div>
         <h2>
-          规格
+          {{specs.name}}
         </h2>
-        <a href="javascript:;" class="specs-num" v-if="food.specfoods.length>1" v-for="(item,index) in food.specfoods" :key="index">
-          {{item.specs[0].value}}
+         <a href="javascript:;" @click="goSpecs(index, item)" :class="{choose:index === sub}" class="specs-num" v-if="specs.values.length>0" v-for="(item,index) in specs.values" :key="index">
+          {{item}}
+        </a>
+      </div>
+    </div>
+    <div class="specs-in" v-if="food.attrs.length > 0" v-for=" (attr,key) in food.attrs" :key="key+1">
+      <div>
+        <h2>
+          {{attr.name}}
+        </h2>
+         <a href="javascript:;" class="specs-num" @click = goAttr(index,key,mark[key]) :class="{choose:index === mark[key]}" v-if="attr.values.length>0" v-for="(item,index) in attr.values" :key="index">
+          {{item+'------'+mark[key]}}
         </a>
       </div>
     </div>
     <div class="popup-submit">
       <p class="specs-price">
         <span class="specs-yuan">￥</span>
-        <span class="specs-jia"></span>
+        <span class="specs-jia">{{price}}</span>
+        <small class="specs-qi" v-if="goShow">起</small>
       </p>
       <div>
-        <button class="specs-tj">选好了</button>
+        <button class="specs-tj" :class="{over:goShow}" >{{goShow?'已售完': '已选好'}}</button>
       </div>
     </div>
  </div>
@@ -63,7 +74,11 @@ export default {
       isShow: false,
       num: 1,
       specs: true,
-      popup: false
+      popup: false,
+      sub: 0,
+      mark: [],
+      price: 0,
+      goShow: false
     }
   },
   beforeMount() {
@@ -71,7 +86,37 @@ export default {
       this.specs = false
     }
   },
+  mounted () {
+   if(this.food.attrs.length>0){
+       this.food.attrs.forEach((item, index) => {
+      this.mark.push(0)
+    })
+     console.log(this.mark,111111)
+   }
+    this.price = this.food.specfoods[0].price
+  },
+  watch: {
+    mark: {
+      handler: function (val, old) {
+        console.log(val, old, 'watch')
+      },
+      deep: true
+    }
+  },
   methods: {
+    goAttr: function(index, key, item) {
+      console.log(index, item)
+      this.mark[key] = index
+      console.log(index, this.mark, this.mark[key])
+    },
+    goSpecs: function (index, item) {
+      this.goShow = false
+      if(item === '默认'){
+        this.goShow = true
+      }
+      this.sub = index
+      this.price = this.food.specfoods[index].price
+    },
       chooseSpecs: function () {
          this.popup = true
       },
@@ -109,8 +154,8 @@ export default {
 .food-buttonWr
   display: inline-block;
   font-size: .346667rem;
-  white-space: nowrap;
-  a
+  // white-space: nowrap;
+  &>a
     display: inline-block;
     padding: .093333rem;
     padding: .933333vw;
@@ -147,7 +192,9 @@ export default {
     border-radius: 3.466667vw;
     line-height: .666667rem;
     line-height: 6.666667vw;
-.popup-wr            
+    box-sizing border-box
+.popup-wr
+  width: 80vw
   .specs-name
     margin: 0;
     text-align: center;
@@ -158,13 +205,15 @@ export default {
     line-height: 6vw;
     padding: .333333rem .8rem;
     padding: 3.333333vw 8vw;
+    box-sizing border-box
   .specs-in
     max-height: 6.666667rem;
     max-height: 66.666667vw;
-    overflow-y: auto;
+    // overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding: 0 0 .533333rem .4rem;
     padding: 0 0 5.333333vw 4vw;
+    box-sizing border-box
     h2
       font-size: .346667rem;
       color: #666;
@@ -191,6 +240,7 @@ export default {
       text-decoration: none;
       text-align: center;
       color: #666;
+      box-sizing  border-box
       &.choose
         font-weight: 700;
         color: #3199e8;
@@ -214,6 +264,7 @@ export default {
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
     background-color: #f9f9f9;
+    box-sizing border-box;
     .specs-price
       font-size: .56rem;
       line-height: 1;
@@ -227,6 +278,27 @@ export default {
         margin-right: -1.333333vw;
         vertical-align: bottom;
       .specs-jia
-        font-weight: 700;      
+        font-weight: 700;
+  .specs-tj
+    box-sizing border-box
+    outline: none;
+    border: none;
+    -webkit-appearance: none;
+    font-size: .373333rem;
+    color: #fff;
+    padding: 0 .333333rem;
+    padding: 0 3.333333vw;
+    text-align: center;
+    line-height: .866667rem;
+    line-height: 8.666667vw;
+    border-radius: .08rem;
+    border-radius: .8vw;
+    background-color: #3199e8;
+    text-decoration: none;
+    &.over
+      background-color: #ccc;
+  .specs-qi
+    font-size: .293333rem;
+    color: #999;              
 </style>
 

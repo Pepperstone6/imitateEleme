@@ -99,16 +99,19 @@ export default {
       shop:null,
       hintInfo: '输入商家、商品名称',
       searchIndex: true,
-      shopInfo: null
+      shopInfo: null,
+      position: null
     }
   },
   mounted() {
+    const _this = this
     this.lat = getSession('latitude')
     this.lon = getSession('longitude')
     this.cityId = getSession('cityId')
+    this.position = this.$store.state.position
     this.his = getLocation('his') ? JSON.parse(getLocation('his')) : null
     axios.get(
-      `/apis/restapi/shopping/v3/hot_search_words?latitude=${this.lat}&longitude=${this.lon}`
+      `/apis/restapi/shopping/v3/hot_search_words?latitude=${_this.position.lat}&longitude=${_this.position.lng}`
     ).then(data => {
       this.hotFoods = data.data
     })
@@ -120,7 +123,7 @@ export default {
         return
       }
       this.isShow = false
-      axios.get(`/apis/restapi/shopping/v1/typeahead?kw=${this.search1}&latitude=${this.lat}&longitude=${this.lon}&city_id=${this.cityId}`)
+      axios.get(`/apis/restapi/shopping/v1/typeahead?kw=${this.search1}&latitude=${_this.position.lat}&longitude=${this.position.lng}&city_id=${this.position.cityId}`)
         .then(data => { 
           data.data.restaurants.map(res => {
             let reg = new RegExp(data.data.search_word,"g")
@@ -172,7 +175,7 @@ export default {
     },
     hotFood: function(keyword,ev){
       axios.get(
-        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.lat}&longitude=${this.lon}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
         ).then(data => {
           this.shopInfo = data.data
           this.$router.replace({name: 'searchShop', query:{keyword}})

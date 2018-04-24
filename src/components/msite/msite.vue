@@ -93,8 +93,8 @@ export default {
   },
   mounted () {
     let _this = this
-    this.latitude = getSession('latitude')
-    this.longitude = getSession('longitude')
+    // this.latitude = getSession('latitude')
+    // this.longitude = getSession('longitude')
        createPosition().then(position => {
          _this.$store.dispatch('getPosition', position)
           _this.position = _this.$store.state.position
@@ -118,7 +118,7 @@ export default {
             // let swipeInfo = data[0]
             let {response1: swipeInfo, response2: addressInfo, response3: classify, response4: restaurant} = data
             tipNode.innerHTML = addressInfo.data.name
-            setSession('cityId', addressInfo.data.city_id)
+            // setSession('cityId', addressInfo.data.city_id)
             _this.$store.dispatch('addPositionInfo', {key:'cityId', val: addressInfo.data.city_id})
             console.log(this.$store.state.position, 1111111111)
             console.log(addressInfo.data)

@@ -296,7 +296,7 @@ export default {
         .food-buttonWr
           display: inline-block;
           font-size: .346667rem;
-          white-space: nowrap;
+          // white-space: nowrap;
           a
             display: inline-block;
             padding: .093333rem;
