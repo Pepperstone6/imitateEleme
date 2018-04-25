@@ -8,3 +8,6 @@ export const getPosition =  function({ commit }, position) {
 export const addPositionInfo = function ({ commit }, positionInfo) {
     commit(types.ADD_POSITION, positionInfo)
 }
+export const setKeyWord = function ({ commit }, keyword) {
+    commit(types.SET_KEYWORD, keyword)
+}

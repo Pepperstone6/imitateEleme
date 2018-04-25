@@ -9,6 +9,9 @@ const mutations = {
       enumerable: true,
       value: positionInfo.val
     })
+  },
+  [types.SET_KEYWORD] (state, keyword) {
+    state.keyword = keyword
   }
 }
 export default mutations

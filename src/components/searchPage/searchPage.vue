@@ -118,6 +118,7 @@ export default {
   },
   methods: {
     search: function () {
+      const _this = this
       if(!this.search1) {
         this.isShow = true
         return
@@ -178,6 +179,7 @@ export default {
         `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
         ).then(data => {
           this.shopInfo = data.data
+          this.$store.dispatch('setKeyWord', keyword)
           this.$router.replace({name: 'searchShop', query:{keyword}})
         })
         

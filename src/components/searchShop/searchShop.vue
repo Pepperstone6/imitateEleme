@@ -60,13 +60,20 @@
         <section class="filter-extend"></section>
         <section @click="closeTab('open', $event)" ref="modal" class="filter-modal"></section>
       </aside>
+      <ul id='nav' v-if="navList.length" class="nav">
+        <li @click="navWord(list.name)" class="list" v-for="(list, index) in navList" :key="index">
+          {{list.name}}
+        </li>
+      </ul>
     </div>
+    <search-food :keyword ="keyword"></search-food>
   </div>
 </template>
 <script>
 import axios from 'axios'
 import { hasClass, addClass, removeClass } from '@/common/dom.js'
 import {setSession, getSession, setLocation, getLocation} from '@/common/public.js'
+import searchFood from '@/components/searchFood/searchFood'
 export default {
   data () {
     return {
@@ -76,27 +83,47 @@ export default {
       foodsList: null,
       lastIndex: null,
       orderBy:null,
-      position: null
+      position: null,
+      navList: []
     }
   },
-  beforeMount() {
-    this.lat = getSession('latitude')
-    this.lon = getSession('longitude')
-    this.cityId = getSession('cityId')
+  mounted() {
+    // this.lat = getSession('latitude')
+    // this.lon = getSession('longitude')
+    // this.cityId = getSession('cityId')
+    const _this = this
     this.position = this.$store.state.position
     this.$parent.searchIndex = false
-    this.keyword = this.$route.query.keyword
-    this.$parent.hintInfo = this.$route.query.keyword
+    this.keyword = this.$store.state.keyword
+    // this.keyword = this.$route.query.keyword
+    this.$parent.hintInfo = this.$store.state.keyword
+    console.log(this.keyword,this.$store.state.keyword)
     axios.get(
       `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
       ).then(data => {
           this.shopInfo = data.data
+         this.manage(_this.shopInfo.inside)
       })
   },
-  mounted() {
-
-  },
+  // mounted() {
+  // },
   methods: {
+    navWord: function (keyword) {
+      this.keyword = keyword
+      this.$store.dispatch('setKeyWord', keyword)
+    },
+    manage: function (obj) {
+      const _this = this
+      return Object.values(obj).forEach((item, index) => {
+        if(item.filter instanceof Object) {
+          Object.values(item.filter).forEach((arr, key) => {
+            if (arr.length>0) {
+            _this.navList = [..._this.navList, ...arr]
+            }
+          })
+        }
+      })
+    },
     czClass: function(styl, num, ev){
       let node = ev.currentTarget
       let fliterNode = document.querySelectorAll('.filter-extend')
@@ -151,6 +178,9 @@ export default {
         console.log(data)
       })
     }
+  },
+  components:{
+    searchFood
   }
 }
 </script>
@@ -348,5 +378,47 @@ a
         height: 4vw;
         display: none;
         -webkit-transform: translateY(-50%);
-        transform: translateY(-50%);            
-    </style>
+        transform: translateY(-50%);
+  .nav
+    margin-top: -.013333rem;
+    margin-top: -.133333vw;
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+    height: 1.253333rem;
+    height: 12.533333vw;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 0 .426667rem;
+    padding: 0 4.266667vw;
+    .list
+      height: .88rem;
+      height: 8.8vw;
+      line-height: .88rem;
+      line-height: 8.8vw;
+      background-color: #f5f5f5;
+      border-radius: .04rem;
+      border-radius: .4vw;
+      color: #666;
+      font-size: .32rem;
+      padding: 0 .426667rem;
+      padding: 0 4.266667vw;
+      -webkit-flex: none;
+      flex: none;
+      margin-right: .213333rem;
+      margin-right: 2.133333vw;
+    &::after
+      display: block;
+      content: "";
+      width: .16rem;
+      width: 1.6vw;
+      -webkit-flex: none;
+      flex: none;
+      height: .026667rem;
+      height: .266667vw;
+    &::-webkit-scrollbar
+      background-color: #fff
+      height 0px                      
+  </style>

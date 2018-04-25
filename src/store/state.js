@@ -1,4 +1,5 @@
 const state = {
-  position: null
+  position: null,
+  keyword: ''
 }
 export default state
