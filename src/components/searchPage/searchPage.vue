@@ -156,25 +156,29 @@ export default {
       if (!this.search1) {
         return
       }
-      if (!getLocation('his')) {
-        let arr = []
-        arr.push(this.search1)
-        setLocation('his', JSON.stringify(arr))
-      }else{
-       
-        let arr1 = JSON.parse(getLocation('his'))
-        if(!arr1.some(value => value === this.search1)){
-          arr1.push(this.search1)
-          setLocation('his', JSON.stringify(arr1))
-        }
-      }
+      this.addHis(this.search1)
         this.$router.replace({name: 'searchShop', query:{keyword: this.search1}})
     },
     clearHis: function () {
       window.localStorage.clear('his')
       this.his = null
     },
+    addHis: function(his){
+      if (!getLocation('his')) {
+        let arr = []
+        arr.push(his)
+        setLocation('his', JSON.stringify(arr))
+      }else{
+       
+        let arr1 = JSON.parse(getLocation('his'))
+        if(!arr1.some(value => value === his)){
+          arr1.push(his)
+          setLocation('his', JSON.stringify(arr1))
+        }
+      }
+    },
     hotFood: function(keyword,ev){
+      this.addHis(keyword)
       axios.get(
         `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
         ).then(data => {

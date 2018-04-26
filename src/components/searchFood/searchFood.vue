@@ -1,6 +1,6 @@
 <template>
   <div class="searchfood">
-    <div v-if="foodList.length" v-for="(restaurant) in foodList" :key="restaurant.restaurant.id">
+    <div v-if="foodList.length && amount===2" v-for="(restaurant) in foodList" :key="restaurant.restaurant.id">
       <div class="res-wr">
         <div class="res">
           <div class="res-c">
@@ -33,59 +33,22 @@
               </div>
             </div>
           </div>
-          <ul class="food-list">
-            <li class="food" v-for="food in restaurant.foods" :key="food.id">
-              <img class="food-img" :src="food.image_path| imgUrl" alt="">
-              <div class="food-info">
-                <p class="food-name">{{food.name}}</p>
-                <p class="food-rating">月售{{food.month_sales}}份&nbsp;好评率{{food.satisfy_rate}}%</p>
-                <p class="food-price">
-                  <!-- <span > -->
-                    <span class="newP">{{food.price}} </span>
-                    <del class="odlP" v-if="food.original_price">
-                      ￥{{food.original_price}}
-                    </del> 
-                  <!-- </span> -->
-                  <span
-                    class="active" 
-                    v-if="active.background"
-                    v-for="active in food.activities"
-                    :key="active.id"
-                    >
-                      {{active.description}}
-                      <span
-                       :style="`background-image:linear-gradient(-135deg, #${active.background.rgb_from} 0%,  #${active.background.rgb_to} 100%);color: #fff`"
-                      >{{active.description}}</span>
-                  </span>
-                  <span
-                    class="active" 
-                    v-if="active.is_exclusive_with_food_activity"
-                    v-for="active in food.activities"
-                    :key="active.id"
-                    >{{active.description}}<span
-                       :style="`color:#${active.icon_color}; border: 2px solid #${active.icon_color}`"
-                      >{{active.description}}</span>
-                  </span>
-                </p>
-              </div>
-            </li>
-          </ul>
-          <div class="more">
-            展开更多商品{{restaurant.foods.length}}个
-            <svg>
-              <use xlink:href="#arrow_down">
-                <svg viewBox="0 0 10 10" id="arrow_down" width="100%" height="100%"><path fill="#A7A7A7" fill-rule="evenodd" d="M5.04 6.268L.827 2.337a.37.37 0 0 0-.518.017.37.37 0 0 0 .019.518L4.784 7.03a.37.37 0 0 0 .545-.05.437.437 0 0 0 .102-.072l4.225-4.014a.396.396 0 0 0 .013-.564l.047.05a.397.397 0 0 0-.565-.015l-4.11 3.904z"></path></svg>
-              </use> 
-            </svg>
-          </div>
+          <search-food-list :foods="restaurant.foods">
+          </search-food-list>
         </div>
       </div>
+    </div>
+    <div v-if="foodList.length && amount===0" >
+        <search-shop-list :foodList="foodList"></search-shop-list>
     </div>
   </div>
 </template>
 <script>
 import axios from 'axios'
 import index from 'axios';
+import SearchFoodList from 'com/searchFoodList/searchFoodList'
+import SearchShopList from 'com/searchShopList/searchShopList'
+import Supplier from 'com/supplier/supplier'
 export default {
   props: {
     keyword: {
@@ -95,7 +58,8 @@ export default {
   data() {
     return {
       position: null,
-      foodList: []
+      foodList: [],
+      amount: 0
     }
   },
   beforeMount() {
@@ -111,6 +75,9 @@ export default {
  methods: {
    manage: function (obj) {
      Object.values(obj).forEach((item, index) => {
+      if(item.attached_food_amount){
+        this.amount = item.attached_food_amount
+      }
       //  console.log(item)
        if(item.restaurant_with_foods instanceof Array && item.restaurant_with_foods.length>0){
           this.foodList = [...this.foodList, ...item.restaurant_with_foods]
@@ -121,13 +88,19 @@ export default {
  watch: {
     keyword: function (val) {
       this.foodList = []
+      this.shopList = []
       axios.get(
       `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
       ).then((data) => {
         this.manage(data.data.inside)
-        console.log(this.foodList)
+        console.log(this.shopList, 33333333333)
       })
     }
+ },
+ components: {
+   SearchFoodList,
+   Supplier,
+   SearchShopList
  }
 }
 </script>
@@ -135,10 +108,10 @@ export default {
 img
   max-width 100%
 .searchfood
-  // -webkit-flex: 1;
-  // flex: 1;
-  // overflow-y: scroll;
-  // -webkit-overflow-scrolling: touch;
+  -webkit-flex: 1;
+  flex: 1;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 .res
   background-color #fff
   .res-c

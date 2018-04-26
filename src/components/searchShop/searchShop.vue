@@ -1,4 +1,5 @@
 <template>
+<div class="shop-wr">
   <div class="shop">
     <div class="shop-header">
       <aside class="filter">  
@@ -68,6 +69,7 @@
     </div>
     <search-food :keyword ="keyword"></search-food>
   </div>
+</div>
 </template>
 <script>
 import axios from 'axios'
@@ -97,7 +99,6 @@ export default {
     this.keyword = this.$store.state.keyword
     // this.keyword = this.$route.query.keyword
     this.$parent.hintInfo = this.$store.state.keyword
-    console.log(this.keyword,this.$store.state.keyword)
     axios.get(
       `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
       ).then(data => {
@@ -187,6 +188,9 @@ export default {
 <style lang="stylus" scoped>
 a 
   text-decoration none
+.shop-wr
+  height: calc(100vh - 1.36rem);
+  height: calc(100vh - 13.6vw);  
 .count
   position: absolute;
   right: .266667rem;

@@ -127,7 +127,7 @@ export default {
             setSession('supplier', restaurant)
             _this.slideInfo = swipeInfo.data[0].entries
             _this.classify = _this.separation(_this, classify.data[0].entries)
-            _this.supplier = restaurant
+            _this.supplier = restaurant.data.items
         })
       })
       

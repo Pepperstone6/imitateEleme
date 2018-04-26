@@ -1,11 +1,8 @@
 <template>
-  <div id="supplier">
-    <div class="recommend">推荐商家</div>
-    <ul v-if="restaurant" v-infinite-scroll='loadMore'
-            infinite-scroll-disabled="loading"
-            infinite-scroll-distance="10">
+  <div id="shoplist">
+    <ul>
       <li class="restaurantWr" @click="toShop(item.restaurant.id)" ref="restaurant" 
-      v-for="(item, key) in restaurant"  :key="key">
+      v-for="(item, key) in shopList"  :key="key">
         <!-- <router-link to="/shop"> -->
           <div class="restaurant">
             <div class="supplierImg">
@@ -43,126 +40,85 @@
           <activities :activities="item.restaurant.activities"></activities>
         <!-- </router-link>  -->
       </li>
-      <li class="loading" v-if="loadingmore">
-        <mt-spinner type="fading-circle" :size='20'></mt-spinner>&nbsp;<span style="font-size:0.22rem;color:#999">正在加载</span>
+      <li class="recommed">
+          <svg>
+            <use xlink:href="#recommend">
+              <svg viewBox="0 0 15 16" id="recommend" width="100%" height="100%"><path fill="none" fill-rule="evenodd" stroke="#333" d="M9.965 14.52H3.792V7.924v6.596H1.499A.493.493 0 0 1 1 14.026l.004-6.53c0-.272.22-.492.499-.492h1.283c.555 0 1.006.438 1.006.92.946 0 2.707-2.777 3.897-6.216 0 0-.288.965.035-.113.322-1.079 1.663-.624 1.685.83-.022 4.203 0 3.684 0 3.684h3.776c.553 0 1.001.455 1.001.998v3.734c0 3.782-4.221 3.679-4.221 3.679z"></path></svg>
+            </use>
+          </svg>
+          为你推荐
+      </li>
+     <li class="restaurantWr" @click="toShop(item.restaurant.id)" ref="restaurant" 
+      v-for="(item, key) in recommendList"  :key="key">
+        <!-- <router-link to="/shop"> -->
+          <div class="restaurant">
+            <div class="supplierImg">
+             <img :src="item.restaurant.image_path | imgUrl" alt="">
+            </div>
+            <div class="supperInfo">
+                <div class="supplierName">
+                  <div class="titleWr">
+                    <i v-if="item.restaurant.is_premium" content="品牌" class="brand">品牌</i>
+                    <span class="title">{{item.restaurant.name}}</span>
+                  </div>
+                  <ul class="supportWr">
+                    <li v-for="support in item.restaurant.supports" :key="support.id">
+                      {{support.icon_name}}
+                    </li>
+                  </ul>
+                </div>
+                <div class="restaurantOrder">
+                  <!-- <star :rating='rating'></star>   -->
+                  <span class="monthOrder">月售{{item.restaurant.recent_order_num}}单</span>
+                  <i v-if="item.restaurant.delivery_mode" content="蜂鸟专送" class="ship">蜂鸟专送</i>
+                </div>
+                <div class="distance">
+                  <div class="mini-order">
+                    <span>￥{{item.restaurant.float_minimum_order_amount}}</span>
+                    <span class="delivery_fee">配送费￥{{item.restaurant.float_delivery_fee}}</span>
+                  </div>
+                  <div class="mini-distance">
+                    <span>{{item.restaurant.distance | distance}}</span>
+                    <span class="delivery_fee">{{item.restaurant.order_lead_time}}分钟</span>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <activities :activities="item.restaurant.activities"></activities>
+        <!-- </router-link>  -->
       </li>
     </ul>
   </div>
 </template>
 <script>
-// import Star from 'com/stars/stars'
-import axios from 'axios'
-import Vue from 'vue'
 import Activities from 'com/activities/activities'
-// import BScroll from 'better-scroll'
-import { InfiniteScroll } from 'mint-ui';
-import { setSession, getSession } from '@/common/public'
-import { Spinner } from 'mint-ui';
-
-Vue.component(Spinner.name, Spinner);
-Vue.use(InfiniteScroll);
 export default {
   props: {
-    supplier: {
-      type: Array
-    }
+    foodList: Array
   },
-  data () {
-    return {
-      restaurant: null,
-      index: true,
-      type:1,
-      position: null,
-      flag: true,
-      geohash: null,
-      loadingmore: true
-    }
-  },
-  methods: {
-    toShop: function (shopId) {
-      // ev.target.$router.push({name:shop})
-      const node = event.target
-      this.$router.push({path: `/shop/${shopId}`})
-    },
-    loadMore() {
-      // this.$loading = true;
-      if (!this.flag) {
-        return
-      }
-      this.flag = false
-      axios.get(
-        `/apis/restapi/shopping/v3/restaurants?latitude=${this.position.lat}&longitude=${this.position.lng}
-        &offset=${this.type*8}&limit=8&extras[]=activities&extras[]=tags&extra_filters=home&rank_id=&terminal=h5`
-      ).then(data => {
-          this.flag = true
-          if (data.items && data.items.length === 0) {
-            this.flag = false
-            this.loadingmore = false 
-            return false
-          }
-          this.type++
-          this.restaurant = [...this.restaurant, ...data.data.items]
-          // data.data.items.map(item => this.restaurant.push(item))
-      })
-      // setTimeout(() => {
-      //   this.loading = false;
-      // }, 2500);
-    }
-  },
-  // computed: {
-  //   loadMore: function () {
-  //     this.loading = true;
-  //     setTimeout(() => {
-  //       let last = this.list[this.list.length - 1];
-  //       for (let i = 1; i <= 10; i++) {
-  //         this.list.push(last + i);
-  //       }
-  //       this.loading = false;
-  //     }, 2500);
-  //   }
-  // },
-  mounted () {
-    const _this = this
-    console.log(_this.supplier,' supplier')
-    _this.restaurant = _this.supplier
-    // _this.latitude = JSON.parse(getSession('latitude'))
-    // _this.longitude = JSON.parse(getSession('longitude'))
-    _this.position = _this.$store.state.position
+  mounted() {
+    console.log(this.foodList)
   },
   components: {
-    // Star
-    // Activity
     Activities
+  },
+  computed: {
+    shopList: function () {
+      return this.foodList.filter((item, index) => {
+         return item.foods.length
+      })
+    },
+    recommendList: function () {
+      return this.foodList.filter((item, index) => {
+        console.log(item)
+         return item.foods.length===0
+      })
+    }
   }
 }
 </script>
-<style lang="stylus" scoped>
-a 
-  text-decoration none
-#supplier
-  .loading
-    display flex 
-    justify-content center
-    padding-bottom 15vw
-    padding-bottom 1.5rem
-    align-items center
-  .recommend
-    font-size .4rem
-    height 9.6vw
-    color #000
-    display flex
-    justify-content center
-    align-items center
-    &::before, &::after
-      content ''
-      display block
-      height .266667vw
-      width 5.333333vw
-      background-color #999
-    &::before  
-      margin-right 3.466667vw
-    &::after  
-      margin-left 3.466667vw
+<style lang="stylus">
+#shoplist
   .restaurant
     display flex
     padding 0 2.666667vw
@@ -320,5 +276,44 @@ a
       font-size: .293333rem;
       line-height: normal;
       color #666
+.recommed
+    height: 1.28rem;
+    height: 12.8vw;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    font-size: .4rem;
+    font-weight: 700;
+    color: #333;
+    &::before
+      display: block;
+      content: "";
+      width: .213333rem;
+      width: 2.133333vw;
+      height: .026667rem;
+      height: .266667vw;
+      margin-right: .133333rem;
+      margin-right: 1.333333vw;
+      background-color: #999;
+    &::after
+      display: block;
+      content: "";
+      width: .213333rem;
+      width: 2.133333vw;
+      height: .026667rem;
+      height: .266667vw;
+      background-color: #999; 
+      margin-right: .133333rem;
+      margin-right: 1.333333vw;
+    svg
+      width: .373333rem;
+      width: 3.733333vw;
+      height: .373333rem;
+      height: 3.733333vw;
+      margin-right: .133333rem;
+      margin-right: 1.333333vw;         
 </style>
 
