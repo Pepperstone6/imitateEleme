@@ -15,14 +15,14 @@
                 </use>
               </svg>
               <input type="search" autofocus="autofocus" @keyup="search" v-model="search1" :placeholder="hintInfo" class="search-input">
-              <button  type="submit" class="search-btn">搜索</button>
+              <button  type="submit" @click="hotFood(search1,$event)" class="search-btn">搜索</button>
           </form>  
       </section>
       <div v-if="searchIndex">
         <div class="seach-content" v-show="!isShow">
           <div style>
           <ul>
-            <li @click="searchFood(item.name,$event)"  role="button" v-if="restaurants" v-for="item in restaurants" :key="item.id">
+            <li @click="searchShop(item.id,item.newname,$event)"  role="button" v-if="restaurants" v-for="item in restaurants" :key="item.id">
               <div class="search-shop">
                 <img :src="item.image_path|imgUrl" alt="">
                 <div class="shop-info">
@@ -41,7 +41,7 @@
                 </div>
               </div>
             </li>
-            <li @click="searchFood(item.name,$event)" class="search-word" v-for="(item, index) in words" :key="index">
+            <li @click="hotFood(item.newword,$event)" class="search-word" v-for="(item, index) in words" :key="index">
               <svg class="search-icon">
                 <use xlink:href="#search">
                   <svg viewBox="0 0 12 12" id="search" width="100%" height="100%"><g fill="none" fill-rule="evenodd"><path fill="#F5F5F5" d="M-179-10h375v805h-375z"></path><path fill="#FFF" d="M-179 0h375v22h-375z"></path><text font-family="PingFangSC-Regular, PingFang SC" font-size="11" transform="translate(-179)"><tspan x="179.5" y="16" fill="#333">黄焖鸡</tspan> <tspan x="212.5" y="16" fill="#999">标准份</tspan></text><g><path fill="#FFF" d="M-179-11h375v44h-375z"></path><path fill="#F5F5F5" d="M-167-3h351a2 2 0 0 1 2 2v24a2 2 0 0 1-2 2h-351a2 2 0 0 1-2-2V-1a2 2 0 0 1 2-2z"></path><path fill="#999" fill-rule="nonzero" d="M11.255 5.338C11.11 2.475 8.787.152 5.924.008A5.632 5.632 0 0 0 .008 5.926c.145 2.845 2.44 5.158 5.284 5.325a5.636 5.636 0 0 0 2.24-.319.507.507 0 1 0-.342-.954 4.622 4.622 0 0 1-1.839.261c-2.327-.137-4.211-2.036-4.33-4.365A4.618 4.618 0 0 1 5.871 1.02c2.344.119 4.251 2.026 4.37 4.37a4.602 4.602 0 0 1-1.275 3.434.62.62 0 0 0 .007.866l2.16 2.16a.507.507 0 1 0 .718-.716L9.956 9.238a5.615 5.615 0 0 0 1.3-3.9z"></path></g></g></svg>
@@ -127,6 +127,7 @@ export default {
       axios.get(`/apis/restapi/shopping/v1/typeahead?kw=${this.search1}&latitude=${_this.position.lat}&longitude=${this.position.lng}&city_id=${this.position.cityId}`)
         .then(data => { 
           data.data.restaurants.map(res => {
+            res.newname = res.name
             let reg = new RegExp(data.data.search_word,"g")
             let arr = reg.exec(res.name)
            if(arr) {
@@ -137,6 +138,7 @@ export default {
            }
           })
           data.data.word_with_meta.map(word => {
+            word.newword = word.word
             let reg = new RegExp(data.data.search_word,"g")
             let arr = reg.exec(word.word)
             if(arr) {
@@ -166,13 +168,16 @@ export default {
     addHis: function(his){
       if (!getLocation('his')) {
         let arr = []
-        arr.push(his)
+        arr.unshift(his)
         setLocation('his', JSON.stringify(arr))
       }else{
        
         let arr1 = JSON.parse(getLocation('his'))
         if(!arr1.some(value => value === his)){
-          arr1.push(his)
+          arr1.unshift(his)
+          if(arr1.length>10){
+            arr1.pop()
+          }
           setLocation('his', JSON.stringify(arr1))
         }
       }
@@ -180,7 +185,7 @@ export default {
     hotFood: function(keyword,ev){
       this.addHis(keyword)
       axios.get(
-        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${ev.target.innerHTML}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+        `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${keyword}&latitude=${this.position.lat}&longitude=${this.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
         ).then(data => {
           this.shopInfo = data.data
           this.$store.dispatch('setKeyWord', keyword)
@@ -188,17 +193,9 @@ export default {
         })
         
     },
-    searchFood: function(keyword, ev) {
-            const _this = this
-            let reg = new RegExp(_this.search1,"g")
-            let arr = reg.exec(keyword)
-            if(arr) {
-              // let arr1 = keyword.split(arr[0])
-              let reg = `/<span style="display:inline-block;color:#999" class="search-words">${this.search1}</span>/g`
-              // keyword = keyword.replace(eval(reg), _this.search1,'g')
-              eval(reg)
-           }
-      console.log(keyword)
+    searchShop: function(shopId,keyword, ev) {
+      const node = ev.target
+      this.$router.push({path: `/shop/${shopId}`})
     },
     goBack: function() {
       this.$router.go(-1)

@@ -61,6 +61,9 @@ export default {
       show:2
     }
   },
+  mounted () {
+
+  },
   methods: {
     isShow (num) {
       this.show = this.show === 2 ? num : 2

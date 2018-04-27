@@ -1,7 +1,7 @@
 <template>
-  <div class="searchfood">
-    <div v-if="foodList.length && amount===2" v-for="(restaurant) in foodList" :key="restaurant.restaurant.id">
-      <div class="res-wr">
+  <div class="searchfood" ref="searchfood">
+    <div v-if="foodList.length && amount===2" >
+      <!-- <div class="res-wr">
         <div class="res">
           <div class="res-c">
             <img class="res-icon" :src="restaurant.restaurant.image_path|imgUrl" alt="">
@@ -36,7 +36,8 @@
           <search-food-list :foods="restaurant.foods">
           </search-food-list>
         </div>
-      </div>
+      </div> -->
+      <search-food-lb></search-food-lb>
     </div>
     <div v-if="foodList.length && amount===0" >
         <search-shop-list :foodList="foodList"></search-shop-list>
@@ -46,8 +47,9 @@
 <script>
 import axios from 'axios'
 import index from 'axios';
-import SearchFoodList from 'com/searchFoodList/searchFoodList'
+import SearchFoodLb from 'com/SearchFoodLb/SearchFoodLb'
 import SearchShopList from 'com/searchShopList/searchShopList'
+import LoadMore from 'com/loadMore/loadMore'
 import Supplier from 'com/supplier/supplier'
 export default {
   props: {
@@ -98,9 +100,10 @@ export default {
     }
  },
  components: {
-   SearchFoodList,
+   SearchFoodLb,
    Supplier,
-   SearchShopList
+   SearchShopList,
+   LoadMore
  }
 }
 </script>

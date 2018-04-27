@@ -1,8 +1,8 @@
 <template>
-  <div id="shoplist">
+  <div id="shoplist" ref="shoplist" >
     <ul>
       <li class="restaurantWr" @click="toShop(item.restaurant.id)" ref="restaurant" 
-      v-for="(item, key) in shopList"  :key="key">
+      v-for="(item) in shopList"  :key="item.restaurant.id">
         <!-- <router-link to="/shop"> -->
           <div class="restaurant">
             <div class="supplierImg">
@@ -38,9 +38,25 @@
             </div>
           </div>
           <activities :activities="item.restaurant.activities"></activities>
+          <div class="food"  v-if="item.foods.length">
+          <div class="food-c"  v-for="food in item.foods" :key="food.id">
+              <img class="food-img" :src="food.image_path|imgUrl" alt="">
+              <p class="food-name">{{food.name}}</p>
+          </div>
+        </div>
         <!-- </router-link>  -->
       </li>
-      <li class="recommed">
+      <!-- <li ref="more" class="loadMore" @click="loadMore($event)">
+        <svg v-if="show" class="load">
+        <use xlink:href="#loading">
+          <svg viewBox="0 0 64 64" id="loading" width="100%" height="100%"><path fill-rule="evenodd" d="M60 36h-8c-2.203 0-4-1.797-4-4 0-2.208 1.797-4 4-4h8c2.203 0 4 1.792 4 4 0 2.203-1.797 4-4 4zM48.973 20.686a4 4 0 0 1-5.66 0 3.995 3.995 0 0 1 0-5.655l5.66-5.653a3.99 3.99 0 0 1 5.65 0 4 4 0 0 1 0 5.655l-5.65 5.656zM32 64a4 4 0 0 1-4-4v-8a4 4 0 0 1 4-4c2.203 0 4 1.797 4 4v8c0 2.203-1.797 4-4 4zm0-48a4 4 0 0 1-4-4V4a4 4 0 1 1 8 0v8c0 2.208-1.797 4-4 4zM15.03 54.624a3.995 3.995 0 0 1-5.654 0 3.99 3.99 0 0 1 0-5.65l5.655-5.66a3.995 3.995 0 0 1 5.657 0 4.004 4.004 0 0 1 0 5.66l-5.655 5.65zm0-33.938L9.373 15.03a3.995 3.995 0 0 1 0-5.654 4 4 0 0 1 5.654 0l5.655 5.655a3.995 3.995 0 0 1 0 5.657 3.99 3.99 0 0 1-5.65 0zM16 32a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4 4 4 0 0 1 4-4h8a4 4 0 0 1 4 4zm32.973 11.314l5.65 5.66a3.99 3.99 0 0 1 0 5.65 3.992 3.992 0 0 1-5.65 0l-5.66-5.65a4 4 0 0 1 0-5.66 4 4 0 0 1 5.66 0z"></path></svg>
+        </use>
+        </svg>
+        <span v-if="show">正在加载...</span>
+        <span v-if="!show">没有更多了哦~</span>
+      </li> -->
+      <load-more :show="show" ref="more" :loadMore="loadMore"></load-more>
+      <li class="recommed" v-if="recommendList.length">
           <svg>
             <use xlink:href="#recommend">
               <svg viewBox="0 0 15 16" id="recommend" width="100%" height="100%"><path fill="none" fill-rule="evenodd" stroke="#333" d="M9.965 14.52H3.792V7.924v6.596H1.499A.493.493 0 0 1 1 14.026l.004-6.53c0-.272.22-.492.499-.492h1.283c.555 0 1.006.438 1.006.92.946 0 2.707-2.777 3.897-6.216 0 0-.288.965.035-.113.322-1.079 1.663-.624 1.685.83-.022 4.203 0 3.684 0 3.684h3.776c.553 0 1.001.455 1.001.998v3.734c0 3.782-4.221 3.679-4.221 3.679z"></path></svg>
@@ -49,7 +65,7 @@
           为你推荐
       </li>
      <li class="restaurantWr" @click="toShop(item.restaurant.id)" ref="restaurant" 
-      v-for="(item, key) in recommendList"  :key="key">
+      v-for="(item, index) in recommendList"  :key="index">
         <!-- <router-link to="/shop"> -->
           <div class="restaurant">
             <div class="supplierImg">
@@ -86,34 +102,104 @@
           </div>
           <activities :activities="item.restaurant.activities"></activities>
         <!-- </router-link>  -->
+        <div class="food"  v-if="item.foods.length">
+          <div class="food-c"  v-for="food in item.foods" :key="food.id">
+              <img class="food-img" :src="food.image_path|imgUrl" alt="">
+              <p class="food-name">{{food.name}}</p>
+          </div>
+        </div>
       </li>
     </ul>
   </div>
 </template>
 <script>
 import Activities from 'com/activities/activities'
+import LoadMore from 'com/loadMore/loadMore'
+import axios from 'axios'
 export default {
   props: {
     foodList: Array
   },
-  mounted() {
-    console.log(this.foodList)
+  data () {
+    return {
+      shopList:[],
+      recommendList: [],
+       index: 1,
+       show: false,
+       scrollMore: false
+    }
   },
+  mounted() {
+    console.log(this.foodList,2222222)
+    //https://h5.ele.me/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=%E4%B9%89%E6%B3%B0%E6%98%8C%E7%8E%B0%E7%82%92%E5%BF%AB%E9%A4%90&latitude=22.545935&longitude=114.02684&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5
+    axios.get(
+      `/apis/restapi/shopping/v2/restaurants/search?offset=0&limit=15&keyword=${this.$store.state.keyword}&latitude=${this.$store.state.position.lat}&longitude=${this.$store.state.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+    ).then(data => {
+      if(data.data.inside[0]&&data.data.inside[0].restaurant_with_foods.length===15){
+        this.index++
+      }
+      if(data.data.inside[0].restaurant_with_foods){
+        this.shopList = data.data.inside[0].restaurant_with_foods
+      }
+      if(data.data.inside[1]){
+      this.recommendList = data.data.inside[1].restaurant_with_foods
+      }
+    })
+    this.scrollMore = true;
+    this.$parent.$refs.searchfood.addEventListener('scroll', this.handle)
+    // this.offsetTop = this.$refs.offsetTop
+ },
   components: {
-    Activities
+    Activities,
+    LoadMore
+  },
+  methods: {
+    handle:function(ev) {
+      let scrollTop = this.$refs.shoplist.offsetHeight-this.$parent.$refs.searchfood.offsetHeight
+      if(!this.$refs.more.nextElementSibling&&scrollTop-ev.target.scrollTop<=1&&this.scrollMore){
+        this.scrollMore=false
+        this.loadMore()
+      }
+    },
+    loadMore: function () {
+      this.show = true;
+       axios.get(
+      `/apis/restapi/shopping/v2/restaurants/search?offset=${15*this.index}&limit=15&keyword=${this.$store.state.keyword}&latitude=${this.$store.state.position.lat}&longitude=${this.$store.state.position.lng}&search_item_type=3&is_rewrite=1&extras[]=activities&extras[]=coupon&terminal=h5`
+    ).then(data => {
+       this.show = false;
+      let flag = this.index
+      if(data.data.inside[0]&&data.data.inside[0].restaurant_with_foods.length===15){
+        this.index++
+      }
+      if(flag===this.index){
+        return
+      }
+      if(data.data.inside[0].restaurant_with_foods){
+        this.shopList =[...this.shopList, ...data.data.inside[0].restaurant_with_foods] 
+      }
+      if(data.data.inside[1]){
+        this.shopList =[...this.shopList, ...data.data.inside[0].restaurant_with_foods] 
+      }
+    })
+    },
+    toShop: function (shopId) {
+    // ev.target.$router.push({name:shop})
+    const node = event.target
+    this.$router.push({path: `/shop/${shopId}`})
+    }
   },
   computed: {
-    shopList: function () {
-      return this.foodList.filter((item, index) => {
-         return item.foods.length
-      })
-    },
-    recommendList: function () {
-      return this.foodList.filter((item, index) => {
-        console.log(item)
-         return item.foods.length===0
-      })
-    }
+    // shopList: function () {
+    //   return this.foodList.filter((item, index) => {
+    //      return typeof item.restaurant.closing_count_down === 'undefined'
+    //   })
+    // },
+    // recommendList: function () {
+    //   return this.foodList.filter((item, index) => {
+    //     console.log(item)
+    //      return item.restaurant.closing_count_down === 0
+    //   })
+    // }
   }
 }
 </script>
@@ -287,6 +373,7 @@ export default {
     justify-content: center;
     font-size: .4rem;
     font-weight: 700;
+    background #f5f5f5
     color: #333;
     &::before
       display: block;
@@ -314,6 +401,30 @@ export default {
       height: .373333rem;
       height: 3.733333vw;
       margin-right: .133333rem;
-      margin-right: 1.333333vw;         
+      margin-right: 1.333333vw;
+  .food
+    display: -webkit-flex;
+    display: flex;
+    background-color: #fff;
+    padding-left: 2.346667rem;
+    padding-left: 23.466667vw;
+    .food-c
+      width: 2.346667rem;
+      width: 23.466667vw;
+      -webkit-flex: none;
+      flex: none;
+      margin-right: .08rem;
+      margin-right: .8vw;    
+      .food-img
+        width: 2.346667rem;
+        width: 23.466667vw;
+        height: 2.346667rem;
+        height: 23.466667vw;
+      .food-name
+        color: #999;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: .32rem;         
 </style>
 
