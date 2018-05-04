@@ -28,9 +28,15 @@ Vue.filter('imgUrl', function (value) {
     
   }
 })
-Vue.filter('aPath', function (value) {
-  let str = value.match(/url.*&/)[0]
-  return str.substring(4,str.length-1)
+Vue.filter('aPath', function (value, hash) {
+  if(!value.match(/url.*&/)){
+    let hp = value.replace('eleme://restaurants?', '')
+    return `https://h5.ele.me/msite/food/${hp}`
+  }
+  // let str = value.match(/url.*?&/)[0]
+  value = window.decodeURIComponent(value) 
+  let str = value.match(/url.*?&/)[0]
+  return str.substring(4,str.length-1)+'&geohash='+hash
 })
 Vue.filter('distance', function (value) {
   if (value >= 1000) {

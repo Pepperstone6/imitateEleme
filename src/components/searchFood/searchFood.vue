@@ -1,42 +1,6 @@
 <template>
   <div class="searchfood" ref="searchfood">
     <div v-if="foodList.length && amount===2" >
-      <!-- <div class="res-wr">
-        <div class="res">
-          <div class="res-c">
-            <img class="res-icon" :src="restaurant.restaurant.image_path|imgUrl" alt="">
-            <div class="res-info">
-              <div class="res-c-t">
-                <p class="res-name">
-                  <span class="res-t">
-                    {{restaurant.restaurant.name}}
-                  </span>
-                </p>
-                <div class="fn" v-if="restaurant.restaurant.delivery_mode">
-                  <span class="fn-wr">{{restaurant.restaurant.delivery_mode.text}}<span class="fn-in">{{restaurant.restaurant.delivery_mode.text}}</span></span>
-                </div>
-              </div>
-              <div class="res-attr">
-                <p>
-                  <span>评价{{restaurant.restaurant.rating}}</span>
-                  <span>起送费{{restaurant.restaurant.float_minimum_order_amount}}</span>
-                  <span>配送费{{restaurant.restaurant.float_delivery_fee}}</span>
-                </p>
-                <p>
-                  <span>
-                    {{restaurant.restaurant.distance|distance}}
-                  </span>
-                  <span>
-                    {{restaurant.restaurant.order_lead_time}}分钟
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <search-food-list :foods="restaurant.foods">
-          </search-food-list>
-        </div>
-      </div> -->
       <search-food-lb></search-food-lb>
     </div>
     <div v-if="foodList.length && amount===0" >

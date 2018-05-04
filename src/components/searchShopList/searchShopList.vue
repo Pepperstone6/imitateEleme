@@ -39,7 +39,7 @@
           </div>
           <activities :activities="item.restaurant.activities"></activities>
           <div class="food"  v-if="item.foods.length">
-          <div class="food-c"  v-for="food in item.foods" :key="food.id">
+          <div class="food-c"  v-for="food in item.foods"  :key="food.id">
               <img class="food-img" :src="food.image_path|imgUrl" alt="">
               <p class="food-name">{{food.name}}</p>
           </div>
@@ -103,7 +103,7 @@
           <activities :activities="item.restaurant.activities"></activities>
         <!-- </router-link>  -->
         <div class="food"  v-if="item.foods.length">
-          <div class="food-c"  v-for="food in item.foods" :key="food.id">
+          <div class="food-c"  v-for="(food, index) in item.foods" v-if="index<2" :key="food.id">
               <img class="food-img" :src="food.image_path|imgUrl" alt="">
               <p class="food-name">{{food.name}}</p>
           </div>
@@ -155,6 +155,9 @@ export default {
   },
   methods: {
     handle:function(ev) {
+      if(!this.$refs.shoplist || !this.$parent.$refs.searchfood){
+        return
+      }
       let scrollTop = this.$refs.shoplist.offsetHeight-this.$parent.$refs.searchfood.offsetHeight
       if(!this.$refs.more.nextElementSibling&&scrollTop-ev.target.scrollTop<=1&&this.scrollMore){
         this.scrollMore=false

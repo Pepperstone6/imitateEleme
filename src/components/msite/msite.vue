@@ -42,10 +42,10 @@
                 <mt-swipe-item ref="classifyItem"  v-for='(classItem, key) in classify' :key='key'>
                   <div class="itemWr">
                     <div class="classifyItem" v-for="item in classItem" :key="item.id">
-                      <router-link to="#">
+                      <a v-if="geohash" :href="item.link|aPath(geohash)">
                         <div class="itemImg"><img :src="item.image_hash | imgUrl" alt=""></div>
                         <div class="classname">{{item.name}}</div>
-                      </router-link>
+                      </a>
                     </div>
                   </div>
                 </mt-swipe-item>
@@ -85,7 +85,8 @@ export default {
       classifyBig:[],
       supplier: null,
       position: null,
-      searchShow: false
+      searchShow: false,
+      geohash: ''
     }
   },
   beforeCreate () {
@@ -120,8 +121,8 @@ export default {
             tipNode.innerHTML = addressInfo.data.name
             // setSession('cityId', addressInfo.data.city_id)
             _this.$store.dispatch('addPositionInfo', {key:'cityId', val: addressInfo.data.city_id})
-            console.log(this.$store.state.position, 1111111111)
-            console.log(addressInfo.data)
+            _this.$store.dispatch('addPositionInfo', {key:'geohash', val: addressInfo.data.geohash}),
+            _this.geohash = addressInfo.data.geohash
             setSession('slider', swipeInfo.data[0].entries)
             setSession('classify', classify.data)
             setSession('supplier', restaurant)
