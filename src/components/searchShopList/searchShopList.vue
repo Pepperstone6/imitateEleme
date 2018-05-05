@@ -27,7 +27,7 @@
                 </div>
                 <div class="distance">
                   <div class="mini-order">
-                    <span>￥{{item.restaurant.float_minimum_order_amount}}</span>
+                    <span>￥{{item.restaurant.float_minimum_order_amount}}起送</span>
                     <span class="delivery_fee">配送费￥{{item.restaurant.float_delivery_fee}}</span>
                   </div>
                   <div class="mini-distance">
@@ -39,11 +39,24 @@
           </div>
           <activities :activities="item.restaurant.activities"></activities>
           <div class="food"  v-if="item.foods.length">
-          <div class="food-c"  v-for="food in item.foods"  :key="food.id">
+          <div class="food-c"  v-for="(food,i) in item.foods" v-if="i<3"  :key="food.id">
               <img class="food-img" :src="food.image_path|imgUrl" alt="">
               <p class="food-name">{{food.name}}</p>
+              <p class="food-pri"><span style="font-size: .293333rem;">￥</span>{{food.price}}</p>
           </div>
         </div>
+        <div class="food-more" v-if="item.foods.length>3">
+            <div v-for="(food,i) in item.foods" v-if="i<showNum && i>= 3" :key="food.id">
+                <p class="food-bo">
+                  <span class="food-bo-name">{{food.name}}</span>
+                  <span class="food-bo-sale">
+                    {{food.month_sales}}
+                  </span>
+                </p>
+                <p class="food-pri"><span style="font-size: .293333rem;">￥</span>{{food.price}}</p>
+            </div>
+          </div>
+          <show-or-hide v-if="item.foods.length>3" :limit=3 :isShow="isShow" :show='showNum' :num="item.foods.length"></show-or-hide>
         <!-- </router-link>  -->
       </li>
       <!-- <li ref="more" class="loadMore" @click="loadMore($event)">
@@ -90,7 +103,7 @@
                 </div>
                 <div class="distance">
                   <div class="mini-order">
-                    <span>￥{{item.restaurant.float_minimum_order_amount}}</span>
+                    <span>￥{{item.restaurant.float_minimum_order_amount}}起送</span>
                     <span class="delivery_fee">配送费￥{{item.restaurant.float_delivery_fee}}</span>
                   </div>
                   <div class="mini-distance">
@@ -103,7 +116,7 @@
           <activities :activities="item.restaurant.activities"></activities>
         <!-- </router-link>  -->
         <div class="food"  v-if="item.foods.length">
-          <div class="food-c"  v-for="(food, index) in item.foods" v-if="index<2" :key="food.id">
+          <div class="food-c" v-for="(food) in item.foods"  :key="food.id">
               <img class="food-img" :src="food.image_path|imgUrl" alt="">
               <p class="food-name">{{food.name}}</p>
           </div>
@@ -116,6 +129,7 @@
 import Activities from 'com/activities/activities'
 import LoadMore from 'com/loadMore/loadMore'
 import axios from 'axios'
+import ShowOrHide from 'com/showOrHide/showOrHide'
 export default {
   props: {
     foodList: Array
@@ -126,7 +140,8 @@ export default {
       recommendList: [],
        index: 1,
        show: false,
-       scrollMore: false
+       scrollMore: false,
+       showNum: 3
     }
   },
   mounted() {
@@ -151,9 +166,14 @@ export default {
  },
   components: {
     Activities,
-    LoadMore
+    LoadMore,
+    ShowOrHide
   },
   methods: {
+    isShow: function (num, ev) {
+      ev.cancelBubble = true
+      this.showNum = this.showNum === 3 ? num : 3
+    },
     handle:function(ev) {
       if(!this.$refs.shoplist || !this.$parent.$refs.searchfood){
         return
@@ -428,6 +448,44 @@ export default {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: .32rem;         
+        font-size: .32rem;    
+  .food-pri
+    color: #ff5339;
+    font-size: .4rem;
+    height: .773333rem;
+    height: 7.733333vw;
+    line-height: .773333rem;
+    line-height: 7.733333vw;
+  .food-more
+    padding-left: 2.346667rem;
+    padding-left: 23.466667vw;
+    padding-right: .426667rem;
+    padding-right: 4.266667vw;
+    background-color: #fff;
+    &>div
+      height: 1.413333rem;
+      height: 14.133333vw;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-justify-content: center;
+      justify-content: center;
+  .food-bo
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      .food-bo-name
+        color: #999;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: .32rem; 
+      .food-bo-sale
+        font-size: .266667rem;
+        color: #999;                  
 </style>
 

@@ -1,11 +1,11 @@
 <template>
   <div>
      <div class="tail">
-       <router-link class="active" to="#">
+       <router-link to="/msite">
         <i class="iconfont home icon-changyonglogo40"></i>
         <div>首页</div>
       </router-link>
-      <router-link to="#">
+      <router-link to="/discover">
         <i class="iconfont  icon-faxian"></i>
         <div>发现</div>
       </router-link>
@@ -35,7 +35,8 @@ export default {
     text-align center
     background #fff
     z-index 99
-    padding .23rem 0
+    border-top 1px solid #d6d6d6
+    padding 0 0 .23rem 0
     .active 
       color #0089dc
     a

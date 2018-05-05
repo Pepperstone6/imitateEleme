@@ -45,7 +45,7 @@
       </use> 
     </svg>
   </div> -->
-  <show-or-hide :isShow="isShow" v-if="foods.length>2"  :show='show' :num="foods.length"></show-or-hide>
+  <show-or-hide :isShow="isShow" v-if="foods.length>2" :limit=2  :show='show' :num="foods.length"></show-or-hide>
   </div>
 </template>
 <script>

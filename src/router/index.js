@@ -6,6 +6,11 @@ const Msite = (resolve) =>{
     resolve(module)
   })
 }
+const Discover = (resolve) => {
+  import('com/discover/discover').then(module => {
+    resolve(module)
+  }) 
+}
 const SearchPage = (resolve) =>{
   import ('com/searchPage/searchPage').then(module => {
     resolve(module)
@@ -23,6 +28,7 @@ const Shop = (resolve) =>{
 }
 export default new Router({
   mode: 'hash',
+  linkActiveClass: 'active',
   routes: [
     {
       path: '/',
@@ -47,6 +53,10 @@ export default new Router({
           component: SearchShop
         }
       ]
+    },{
+      path: '/discover',
+      name: 'discover',
+      component: Discover
     }
   ]
 })
